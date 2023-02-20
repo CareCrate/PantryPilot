@@ -22,7 +22,8 @@ export default function VolunteerDashboard() {
       <label for="password">Password:</label>
       <input type="text" id="password" name="password" /><br/>
 
-      <Button variant='contained' disableElevation disableRipple disableTouchRipple sx={{ textTransform: 'none' }}>Submit</Button>
+      <Button variant='contained' disableElevation disableRipple disableTouchRipple sx={{ textTransform: 'none' }}>Cancel</Button>
+      <Button variant='contained' disableElevation disableRipple disableTouchRipple sx={{ textTransform: 'none' }}>Sign up</Button>
       </form>
     )
 }
