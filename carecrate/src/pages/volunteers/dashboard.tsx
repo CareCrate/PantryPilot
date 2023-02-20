@@ -68,25 +68,25 @@ const data: GridRowsProp = [
 
 export default function VolunteerDashboard() {
     return (
-        <Box component='div' sx={{ overflowX: 'clip', position: 'relative', margin: 'auto', maxWidth: '1920px', padding: '10px' }}>
+        <Box component='div' sx={{ overflowX: 'clip', position: 'relative', margin: 'auto', maxWidth: '1920px', padding: '2em' }}>
             <Grid container spacing={0} direction='column' sx={{ width: '100%' }}>
 
                 <Grid item container direction='column' spacing={0} sx={{ flexDirection: 'column' }}>
 
                     {/* TODO: Implement Cards. */}
                     <Stack direction='row' spacing={3}>
-                        <DataCard subtitle={'Total checkins today'} value={100} />
-                        <DataCard subtitle={'Total volunteers today'} value={20} />
-                        <DataCard subtitle={'Total household today'} value={3000} />
+                        <DataCard subtitle={'Total checkins today'} value={100} prev={120} />
+                        <DataCard subtitle={'Total volunteers today'} value={4} prev={20} />
+                        <DataCard subtitle={'Total household today'} value={3000} prev={2700} />
                         {/* <DataCard subtitle={'Food weight'} value={25} units={'lbs'} /> */}
                     </Stack>
 
                     {/* TODO: Implement Dynamic List */}
-                    <Stack direction='row' spacing={0} sx={{ marginTop: '60px' }}>
+                    <Stack direction='row' spacing={0} sx={{ marginTop: '5em' }}>
                         <Typography variant='h6' sx={{ flexGrow: 1 }}>Recent Checkins</Typography>
                         <Button variant='contained' disableElevation disableRipple disableTouchRipple sx={{ textTransform: 'none' }}>+ Add Checkin</Button>
                     </Stack>
-                    <Paper component='div' elevation={3} sx={{ height: 500, width: '100%', marginTop: '20px' }}>
+                    <Paper component='div' elevation={3} sx={{ height: 500, width: '100%', marginTop: '2em' }}>
                         <DataGrid rows={data} columns={fields} />
                     </Paper>
                 </Grid>
