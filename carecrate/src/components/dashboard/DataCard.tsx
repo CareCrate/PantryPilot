@@ -15,7 +15,7 @@ const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units }) =>
             <CardContent>
                 <Stack direction='row' spacing={0} sx={{ alignItems: 'center' }}>
                     <Typography variant='h6' sx={{ flexGrow: 1 }}>{value} {units}</Typography>
-                    <Typography variant='subtitle2' sx={{ background: percentage < 0 ? '#F66E64' : '#69F664', color: '#FFF', borderRadius: '0.7em', padding: '0.5em' }}>{percentage > 0 ? `+${percentage}` : percentage}%</Typography>
+                    <Typography variant='subtitle2' sx={{ background: percentage < 0 ? '#F66E64' : '#7FB069', color: '#FFF', borderRadius: '0.7em', padding: '0.5em', opacity: '80%' }}>{percentage > 0 ? `+${percentage}` : percentage}%</Typography>
                 </Stack>
                 <Typography variant='body2' sx={{ marginTop: '2em', textTransform: 'none' }}>{subtitle}</Typography>
             </CardContent>

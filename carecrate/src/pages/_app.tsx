@@ -12,11 +12,11 @@ export default function App({ Component, pageProps }: AppProps) {
               variant: 'contained'
             },
             style: {
-              backgroundColor: '#A264F6', // Purple
+              backgroundColor: '#C2AFF0', // Purple
               opacity: '80%',
               transition: 'background-color .2s, box-shadow .2s, color .2s',
               '&:hover': {
-                backgroundColor: '#A264F6',
+                backgroundColor: '#C2AFF0',
                 opacity: '100%'
               }
             }

@@ -16,12 +16,12 @@ export default function Navbar() {
     };
 
     return (
-        <AppBar position='static' elevation={0} sx={{ background: '#FFF' }}>
+        <AppBar position='static' elevation={0} sx={{ background: '#C2AFF0' }}>
             <Toolbar>
-                <Typography variant='h5' component='div' sx={{ flexGrow: 1, color: '#212121' }}>Good Morning, {ACCOUNT_NAME}</Typography>
+                <Typography variant='h5' component='div' sx={{ flexGrow: 1, color: '#FFF' }}>Good Morning, {ACCOUNT_NAME}</Typography>
                 <Box component='div'>
                     <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
-                        <AccountCircle fontSize='large' sx={{ color: '#212121' }}/>
+                        <AccountCircle fontSize='large' sx={{ color: '#FFF' }}/>
                     </IconButton>
                     <Menu id='profile_menu' anchorEl={anchorEl} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} keepMounted transformOrigin={{ vertical: 'top', horizontal: 'right' }} open={Boolean(anchorEl)} onClose={handleClose} sx={{ marginTop: '2em', marginLeft: '-1em' }}>
                         <MenuItem onClick={handleClose}>Settings</MenuItem>
