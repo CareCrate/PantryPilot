@@ -10,15 +10,14 @@ export type Family = {
   numInHousehold: number;
   numChildren: number;
   numElderly: number;
-  // Add Visits array
+  visits: string[];
 };
 
 export type Visit = {
-  visitId: string;
   phoneNumber: string;
   foodWeight: number;
   checkInType: string;
-  timestamp: Date;
+  timeOfVisit: string;
 };
 
 export type Volunteer = {
@@ -28,4 +27,9 @@ export type Volunteer = {
   email: string;
   password: string;
   lastVolunteerDate: Date;
+};
+
+export type Waste = {
+  timeOfWaste: string;
+  lbs: number;
 };
