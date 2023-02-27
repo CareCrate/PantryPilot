@@ -1,15 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import firebaseApp from "../../../firebase/initFirebase";
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  updateDoc,
-  arrayUnion,
-} from "firebase/firestore";
+import { db } from "../../../firebase/initFirebase";
+import { doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import type { Visit } from "../../../types";
 
-const db = getFirestore(firebaseApp);
 const collectionName: string = "visits";
 
 export default async function handler(

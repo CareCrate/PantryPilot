@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import firebaseApp from "../../../firebase/initFirebase";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { db } from "../../../firebase/initFirebase";
+import { doc, setDoc } from "firebase/firestore";
 import type { Family } from "../../../types";
 
-const db = getFirestore(firebaseApp);
 const collectionName: string = "families";
 
 export default async function handler(

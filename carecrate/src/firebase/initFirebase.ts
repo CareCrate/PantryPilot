@@ -1,4 +1,9 @@
 import { initializeApp } from "firebase/app";
+import {
+  enableIndexedDbPersistence,
+  initializeFirestore,
+  CACHE_SIZE_UNLIMITED,
+} from "firebase/firestore";
 
 const clientCredentials = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,4 +17,8 @@ const clientCredentials = {
 
 const firebaseApp = initializeApp(clientCredentials);
 
-export default firebaseApp;
+const db = initializeFirestore(firebaseApp, {
+  cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+});
+
+export { firebaseApp as default, db };
