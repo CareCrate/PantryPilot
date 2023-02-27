@@ -1,25 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import admin from "firebase-admin";
-import { FieldValue } from "firebase-admin/firestore";
-import * as credentials from "../../../../firebase-key.json";
+import firebaseApp from "../../../firebase/initFirebase";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+} from "firebase/firestore";
 import type { Visit } from "../../../types";
 
-admin.initializeApp({
-  credential: admin.credential.cert(credentials as admin.ServiceAccount),
-});
-
-const db = admin.firestore();
+const db = getFirestore(firebaseApp);
 const collectionName: string = "visits";
 
 /**
  * Update the family's array of visits each time they check in.
  */
-function updateFamilyVisits(
+async function updateFamilyVisits(
   timestamp: string,
-  family: admin.firestore.DocumentReference<admin.firestore.DocumentData>
+  familyRef: any //TODO: update this type
 ) {
-  family.update({
-    visits: FieldValue.arrayUnion(timestamp),
+  await updateDoc(familyRef, {
+    visits: arrayUnion(timestamp),
   });
 }
 
@@ -29,9 +30,9 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     const visit: Visit = req.body;
-    const id: string = visit.timeOfVisit; //visits are stored by their timestamp
-    const response = db.collection(collectionName).doc(id).set(visit); //add visit to db
-    updateFamilyVisits(id, db.collection("families").doc(req.body.phoneNumber));
+    const docId: string = visit.timeOfVisit; //visits are stored by their timestamp
+    const response = await setDoc(doc(db, collectionName, docId), visit); //add visit to db
+    await updateFamilyVisits(docId, doc(db, "families", visit.phoneNumber));
     res.status(201).send(response);
   }
 }

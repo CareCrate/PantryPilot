@@ -1,13 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import admin from "firebase-admin";
-import * as credentials from "../../../../firebase-key.json";
+import firebaseApp from "../../../firebase/initFirebase";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import type { Waste } from "../../../types";
 
-admin.initializeApp({
-  credential: admin.credential.cert(credentials as admin.ServiceAccount),
-});
-
-const db = admin.firestore();
+const db = getFirestore(firebaseApp);
 const collectionName: string = "waste";
 
 export default async function handler(
@@ -16,8 +12,8 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     const waste: Waste = req.body;
-    const id: string = waste.timeOfWaste; // Waste is stored by its timestamp
-    const response = db.collection(collectionName).doc(id).set(waste); //add waste to db
+    const docId: string = waste.timeOfWaste; // Waste is stored by its timestamp
+    const response = await setDoc(doc(db, collectionName, docId), waste); //add waste to db
     res.status(201).send(response);
   }
 }
