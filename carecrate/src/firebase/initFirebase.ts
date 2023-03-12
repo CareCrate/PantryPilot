@@ -1,8 +1,8 @@
-import { initializeApp } from "firebase/app";
+import { FirebaseApp, initializeApp } from "firebase/app";
 import {
   enableIndexedDbPersistence,
-  initializeFirestore,
-  CACHE_SIZE_UNLIMITED,
+  Firestore,
+  getFirestore,
 } from "firebase/firestore";
 
 const clientCredentials = {
@@ -15,10 +15,9 @@ const clientCredentials = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const firebaseApp = initializeApp(clientCredentials);
+const firebaseApp: FirebaseApp = initializeApp(clientCredentials);
 
-const db = initializeFirestore(firebaseApp, {
-  cacheSizeBytes: CACHE_SIZE_UNLIMITED,
-});
+const db: Firestore = getFirestore(firebaseApp);
+// enableIndexedDbPersistence(db);
 
 export { firebaseApp as default, db };

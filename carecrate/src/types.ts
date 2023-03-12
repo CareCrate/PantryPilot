@@ -14,7 +14,10 @@ export type Family = {
 };
 
 export type Visit = {
+  id: number;
   phoneNumber: string;
+  firstName: string;
+  lastName: string;
   foodWeight: number;
   checkInType: string;
   timeOfVisit: string;
