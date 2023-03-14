@@ -30,15 +30,30 @@ Make a new useEffect hook for each type of firebase call
 3. Create methods for all the firebase calls that you need and seperate them out into their own methods
 */
 
-const familyCollection: string = "family";
+// Collection names
+const familyCollection: string = "families";
+const visitsCollection: string = "visits";
+const wasteCollection: string = "waste";
+
+// Helper function for useCurrentVisits()
+const compareArrays = (a: any, b: any) => {
+  return JSON.stringify(a) === JSON.stringify(b);
+};
 
 //TODO: Finish fixing these with proper return statements
+// useState to keep track of the current family/any other data we need
 export const useFirestore = () => {
+  const [family, setFamily] = useState<{}>({}); //TODO: research this notation
+  // const [waste, setWaste] = useState<0>(0);
+
   const saveFamily = async (family: Family) => {
     console.log("Trying to save family");
     const docId: string = family.phoneNumber; // Families are stored by their phone numbers
-    const set = await setDoc(doc(db, familyCollection, docId), family); //add family document to db
-    return set;
+    const save = async () => {
+      await setDoc(doc(db, familyCollection, docId), family); //add family document to db
+    };
+
+    save();
   };
 
   const getFamily = async (phoneNumber: string) => {
@@ -49,30 +64,45 @@ export const useFirestore = () => {
     );
     const docSnap: DocumentSnapshot<DocumentData> = await getDoc(docRef);
 
-    if (!docSnap.exists()) {
+    if (docSnap.exists()) {
       // if no data exists, user should enter family data manually on UI.
-      return "no data";
+      setFamily(docSnap.data());
+    } else {
+      setFamily({});
     }
 
-    console.log(docSnap.data());
-    return docSnap.data();
+    console.log(family);
+    return family;
   };
 
   const saveVisit = async (visit: Visit) => {
     const docId: string = visit.id.toString(); //visits are stored by their timestamp
-    await setDoc(doc(db, visitsCollection, docId), visit); //add visit to db
+
+    const save = async () => {
+      await setDoc(doc(db, visitsCollection, docId), visit); //add visit to db
+    };
 
     // update the family's array of visits each time they check in.
-    await updateDoc(doc(db, "families", visit.phoneNumber), {
-      visits: arrayUnion(docId),
-    });
+    const update = async () => {
+      await updateDoc(doc(db, "families", visit.phoneNumber), {
+        visits: arrayUnion(docId),
+      });
+    };
+
+    save();
+    update();
   };
 
   const saveWaste = async (waste: Waste) => {
     const docId: string = waste.timeOfWaste; // Waste is stored by its timestamp
-    await setDoc(doc(db, wasteCollection, docId), waste); //add waste to db
+    const save = async () => {
+      await setDoc(doc(db, wasteCollection, docId), waste); //add waste to db
+    };
+
+    save();
   };
 
+  // Configure this for my use case. Do I need a listener, or just a get?
   const getWaste = async (timestamp: string) => {
     // const q: Query<DocumentData> = query(
     //   collection(db, "waste"),
@@ -89,105 +119,6 @@ export const useFirestore = () => {
   };
 
   return { saveFamily, getFamily, saveVisit, saveWaste, getWaste };
-};
-
-// FAMILY FUNCTIONS
-// const familyCollection: string = "family";
-
-/**
- * Saves a family to the database
- * USAGE: Create new family in check-in modals
- * @param family
- */
-export const saveFamily = async (family: Family) => {
-  const docId: string = family.phoneNumber; // Families are stored by their phone numbers
-  await setDoc(doc(db, familyCollection, docId), family); //add family document to db
-};
-
-/**
- * Retries a family from the database
- * USAGE: Pull up existing family in check-in modals
- * @param phoneNumber
- */
-export const getFamily = async (phoneNumber: string) => {
-  const docRef: DocumentReference<DocumentData> = doc(
-    db,
-    familyCollection,
-    phoneNumber
-  );
-  const docSnap: DocumentSnapshot<DocumentData> = await getDoc(docRef);
-
-  if (!docSnap.exists()) {
-    // if no data exists, user should enter family data manually on UI.
-    return;
-  }
-
-  return docSnap.data();
-};
-
-// Update the current phone number whenever it is changed
-// useEffect to rerun the logic of useFamily whenever currentPhoneNumber is changed
-
-let currentPhoneNumber = "345";
-export const setCurrentPhoneNumber = (phoneNumber: string) => {
-  currentPhoneNumber = phoneNumber;
-};
-
-export const useFamily = async () => {
-  const [family, setFamily] = useState({});
-
-  // useEffect(() => {
-  //   const docRef: DocumentReference<DocumentData> = doc(
-  //     db,
-  //     familyCollection,
-  //     currentPhoneNumber
-  //   );
-
-  //   const getDocSnap = async () => {
-  //     const docSnap: DocumentSnapshot<DocumentData> = await getDoc(docRef);
-  //     if (docSnap.exists()) {
-  //       setFamily(docSnap.data());
-  //     } // else, if family does not exist, send some kind of indication to the DOM so user can enter info manually
-  //   };
-
-  //   getDocSnap().catch(console.error);
-  // }, [currentPhoneNumber]);
-
-  const docRef: DocumentReference<DocumentData> = doc(
-    db,
-    familyCollection,
-    currentPhoneNumber
-  );
-
-  const docSnap: DocumentSnapshot<DocumentData> = await getDoc(docRef);
-  if (docSnap.exists()) {
-    setFamily(docSnap.data());
-  } // else, if family does not exist, send some kind of indication to the DOM so user can enter info manually
-
-  // getDocSnap().catch(console.error);
-  return family;
-};
-
-// VISIT FUNCTIONS
-const visitsCollection: string = "visits";
-
-/**
- * Adds a new visit to the database.
- * USAGE: Checking in a new family with the check-in modals
- * @param visit
- */
-export const saveVisit = async (visit: Visit) => {
-  const docId: string = visit.id.toString(); //visits are stored by their timestamp
-  await setDoc(doc(db, visitsCollection, docId), visit); //add visit to db
-
-  // update the family's array of visits each time they check in.
-  await updateDoc(doc(db, "families", visit.phoneNumber), {
-    visits: arrayUnion(docId),
-  });
-};
-
-const compareArrays = (a: any, b: any) => {
-  return JSON.stringify(a) === JSON.stringify(b);
 };
 
 /**
@@ -228,29 +159,4 @@ export const useVisitsListener = () => {
   }, [tempVisitDocs]);
 
   return currentVisits;
-};
-
-//  const [visits, setVisits] = useVisits();
-
-// WASTE FUNCTIONS
-const wasteCollection: string = "waste";
-
-export const saveWaste = async (waste: Waste) => {
-  const docId: string = waste.timeOfWaste; // Waste is stored by its timestamp
-  await setDoc(doc(db, wasteCollection, docId), waste); //add waste to db
-};
-
-export const getWaste = async (timestamp: string) => {
-  // const q: Query<DocumentData> = query(
-  //   collection(db, "waste"),
-  //   where("timeOfWaste", ">=", 1678479399162) // this can be any timestamp
-  // );
-  // const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(q);
-  // const dataArray: any = [];
-  // querySnapshot.forEach((doc) => {
-  //   // doc.data() is never undefined for query doc snapshots (comment is from Firebase docs)
-  //   dataArray.push(doc.data());
-  //   console.log(doc.data());
-  // });
-  // return dataArray;
 };
