@@ -21,15 +21,6 @@ import type { Family, Visit, Waste } from "../types";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "./localStorage";
 
-/*
-1. Create states for each type of data that will be returned from Firebase
-
-2. Create React useEffect Hook which will act as local storage for your whole application. 
-Make a new useEffect hook for each type of firebase call
-
-3. Create methods for all the firebase calls that you need and seperate them out into their own methods
-*/
-
 // Collection names
 const familyCollection: string = "families";
 const visitsCollection: string = "visits";
@@ -40,11 +31,8 @@ const compareArrays = (a: any, b: any) => {
   return JSON.stringify(a) === JSON.stringify(b);
 };
 
-//TODO: Finish fixing these with proper return statements
-// useState to keep track of the current family/any other data we need
 export const useFirestore = () => {
-  const [family, setFamily] = useState<{}>({}); //TODO: research this notation
-  // const [waste, setWaste] = useState<0>(0);
+  const [family, setFamily] = useState<{}>({});
 
   const saveFamily = async (family: Family) => {
     console.log("Trying to save family");
@@ -121,10 +109,6 @@ export const useFirestore = () => {
   return { saveFamily, getFamily, saveVisit, saveWaste, getWaste };
 };
 
-/**
- * Queries all visits that occur after a certain timestamp.
- * USAGE: Listening to changes in the visits collection and updating the table on the dashboard
- */
 export const useVisitsListener = () => {
   const [currentVisits, setCurrentVisits] = useState<[]>([]);
   // const [visits, setVisits] = useLocalStorage('the key', [values]);
