@@ -1,10 +1,14 @@
 import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
+import { GetServerSideProps } from 'next';
+import type { Session } from 'next-auth';
+import { useSession, getSession } from 'next-auth/react';
 
 
 export default function Signup() {
+  const { data: session, status } = useSession()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const data = new FormData(event.currentTarget)
     console.log({
       email: data.get('email'),
       password: data.get('password'),
@@ -22,4 +26,12 @@ export default function Signup() {
       </Box>
     </Box>
   )
+}
+
+export const getServerSideProps: GetServerSideProps<{ session: Session | null }> = async (context) => {
+  return {
+    props: {
+      session: await getSession(context)
+    }
+  }
 }
