@@ -4,6 +4,9 @@ import Layout from '@/components/layout'
 
 export default function App({ Component, pageProps }: AppProps) {
   const theme = createTheme({
+    palette: {
+      mode: 'dark'
+    },
     components: {
       MuiButton: {
         variants: [
