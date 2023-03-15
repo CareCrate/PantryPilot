@@ -1,6 +1,7 @@
 import type { AppProps } from 'next/app'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import Layout from '@/components/layout'
+import { SessionProvider } from 'next-auth/react';
 
 export default function App({ Component, pageProps }: AppProps) {
   const theme = createTheme({
@@ -30,12 +31,14 @@ export default function App({ Component, pageProps }: AppProps) {
   });
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </CssBaseline>
-    </ThemeProvider>
+    <SessionProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </CssBaseline>
+      </ThemeProvider>
+    </SessionProvider>
   )
 }

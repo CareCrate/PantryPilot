@@ -3,8 +3,12 @@ import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem, FormContr
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Brightness6Icon from '@mui/icons-material/Brightness6';
 import { ChangeEvent, useState } from "react";
+import { GetServerSideProps } from 'next';
+import type { Session } from 'next-auth';
+import { useSession, getSession } from 'next-auth/react';
 
 export default function Navbar() {
+    const { data: session, status } = useSession()
 
     // TODO: Replace with real Account Name
     const ACCOUNT_NAME: string = 'John';
@@ -47,4 +51,12 @@ export default function Navbar() {
             </Toolbar>
         </AppBar>
     )
+}
+
+export const getServerSideProps: GetServerSideProps<{ session: Session | null }> = async (context) => {
+    return {
+      props: {
+        session: await getSession(context)
+      }
+    }
 }
