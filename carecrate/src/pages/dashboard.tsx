@@ -8,7 +8,7 @@ const fields: GridColDef[] = [
         field: 'first_name',
         headerName: 'First Name',
         width: 150
-    }, 
+    },
     {
         field: 'last_name',
         headerName: 'Last Name',
@@ -65,6 +65,12 @@ const data: GridRowsProp = [
     }
 ];
 
+function addCheckin() {
+  const phoneNumber = prompt("Phone number");
+  const recipients = prompt("Recipients");
+  const type = prompt("Type");
+  const weight = prompt("Weight");
+}
 
 export default function VolunteerDashboard() {
     return (
@@ -84,7 +90,7 @@ export default function VolunteerDashboard() {
                     {/* TODO: Implement Dynamic List */}
                     <Stack direction='row' spacing={0} sx={{ marginTop: '5em' }}>
                         <Typography variant='h6' sx={{ flexGrow: 1 }}>Recent Checkins</Typography>
-                        <Button variant='contained' disableElevation disableRipple disableTouchRipple sx={{ textTransform: 'none' }}>+ Add Checkin</Button>
+                        <Button variant='contained' disableElevation disableRipple disableTouchRipple sx={{ textTransform: 'none' }} onClick={addCheckin}>+ Add Checkin</Button>
                     </Stack>
                     <Paper component='div' elevation={3} sx={{ height: 500, width: '100%', marginTop: '2em' }}>
                         <DataGrid rows={data} columns={fields} />
