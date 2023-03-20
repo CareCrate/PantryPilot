@@ -72,7 +72,7 @@ function addCheckin() {
   const weight = prompt("Weight");
 }
 
-export default function VolunteerDashboard() {
+export default function Dashboard() {
     return (
         <Box component='div' sx={{ overflowX: 'clip', position: 'relative', margin: 'auto', maxWidth: '1920px', padding: '2em' }}>
             <Grid container spacing={0} direction='column' sx={{ width: '100%' }}>
