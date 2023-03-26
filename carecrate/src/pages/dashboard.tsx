@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import { Family } from "../types";
+import { Family, Visit } from "../types";
 
 // ----- Number not change on scroll in text field-----
 //
@@ -101,10 +101,16 @@ export default function Dashboard() {
   const firestore: any = useFirestore();
 
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
-  const [checkInType, setCheckInType] = useState("");
-  const [foodWeight, setFoodWeight] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [checkInType, setCheckInType] = useState("");
+  const [foodWeight, setFoodWeight] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [numInHousehold, setNumInHousehold] = useState(0);
+  const [numChildren, setNumChildren] = useState(0);
+  const [numElderly, setNumElderly] = useState(0);
 
   let currentFamily: Family;
 
@@ -114,40 +120,115 @@ export default function Dashboard() {
     setCheckInType("");
     setFoodWeight("");
     setIsDisabled(false);
+    resetTextFields();
   };
 
   const handleCheckInTypeChange = (event: SelectChangeEvent) => {
     setCheckInType(event.target.value as string);
   };
 
-  const handlePhoneNumberChange = (e: any) => {
-    const regex = /^[0-9\b]+$/;
-    if (e.target.value === "" || regex.test(e.target.value)) {
-      setPhoneNumber(e.target.value);
+  const handleTextBoxChange = (e: any, textBoxToUpdate: string) => {
+    const numRegex = /^[0-9\b]+$/;
+    const letterRegex = /^[a-zA-Z]+$/;
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+    if (e.target.value === "" || numRegex.test(e.target.value)) {
+      switch (textBoxToUpdate) {
+        case "phoneNumber": {
+          setPhoneNumber(e.target.value);
+          break;
+        }
+        case "foodWeight": {
+          setFoodWeight(e.target.value);
+          break;
+        }
+        case "numInHousehold": {
+          setNumInHousehold(e.target.value);
+          break;
+        }
+        case "numChildren": {
+          setNumChildren(e.target.value);
+          break;
+        }
+        case "numElderly": {
+          setNumElderly(e.target.value);
+          break;
+        }
+      }
+    } else if (e.target.value === "" || letterRegex.test(e.target.value)) {
+      switch (textBoxToUpdate) {
+        case "firstName": {
+          setFirstName(e.target.value);
+          break;
+        }
+        case "lastName": {
+          setLastName(e.target.value);
+          break;
+        }
+      }
+    } else if (
+      textBoxToUpdate === "email" &&
+      (e.target.value === "" || emailRegex.test(e.target.value))
+    ) {
+      setEmail(e.target.value);
     }
   };
 
-  const pleaseWork = async () => {
+  const findFamily = async () => {
     currentFamily = await firestore.getFamily(phoneNumber);
-    console.log(phoneNumber);
-    // console.log(currentFamily);
-    console.log(
-      "Current Family: " +
-        currentFamily.firstName +
-        " " +
-        currentFamily.lastName
-    );
+    if (currentFamily.firstName === undefined) {
+      console.log("Family does not exist");
+      resetTextFields();
+    } else {
+      console.log(currentFamily);
+      setFirstName(currentFamily.firstName);
+      setLastName(currentFamily.lastName);
+      setNumInHousehold(currentFamily.numInHousehold);
+      setNumChildren(currentFamily.numChildren);
+      setNumElderly(currentFamily.numElderly);
+    }
+  };
+
+  const resetTextFields = () => {
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setNumInHousehold(0);
+    setNumChildren(0);
+    setNumElderly(0);
+  };
+
+  const saveCheckIn = () => {
+    const date = new Date();
+    let familyToSave: Family = {
+      firstName,
+      lastName,
+      email: "hi@bye.com",
+      phoneNumber,
+      numInHousehold,
+      numChildren,
+      numElderly,
+      visits: [],
+    };
+    let visitToSave: Visit = {
+      id: date.getTime(),
+      phoneNumber,
+      firstName,
+      lastName,
+      foodWeight: parseInt(foodWeight),
+      checkInType,
+      timeOfVisit: date.toLocaleString(),
+    };
+
+    firestore.saveFamily(familyToSave);
+    // firestore.saveVisit(visitToSave);
+
+    setIsCheckInModalOpen(false);
   };
 
   useEffect(() => {
     if (phoneNumber.length === 10) {
-      pleaseWork();
-      // console.log(
-      //   "Current Family: " +
-      //     currentFamily.firstName +
-      //     " " +
-      //     currentFamily.lastName
-      // );
+      findFamily();
     }
   }, [phoneNumber]);
 
@@ -226,7 +307,7 @@ export default function Dashboard() {
       </Grid>
       <Modal
         open={isCheckInModalOpen}
-        onClose={() => setIsCheckInModalOpen(false)}
+        onClose={() => saveCheckIn()}
         title="Checkin"
         content="To checkin a user, please enter in their associated informaton. If a phone number is found, the information will be populated automatically."
         submitText="Submit"
@@ -241,7 +322,7 @@ export default function Dashboard() {
             inputProps={{ maxLength: 10 }}
             variant="standard"
             onChange={(e) => {
-              handlePhoneNumberChange(e);
+              handleTextBoxChange(e, "phoneNumber");
             }}
             value={phoneNumber}
           />,
@@ -254,29 +335,6 @@ export default function Dashboard() {
             fullWidth
             variant="standard"
           />,
-          //   <FormControl fullWidth>
-          //     <InputLabel id="family">Family</InputLabel>
-          //     <Select
-          //       labelId="family"
-          //       id="family"
-          //       value={age}
-          //       label="Family"
-          //       onChange={handleChange}
-          //     >
-          //       <MenuItem value={10}>Ten</MenuItem>
-          //       <MenuItem value={20}>Twenty</MenuItem>
-          //       <MenuItem value={30}>Thirty</MenuItem>
-          //     </Select>
-          //   </FormControl>,
-          //   <TextField
-          //     autoFocus
-          //     margin="dense"
-          //     id="checkin_type"
-          //     label="Check In Type"
-          //     type="checkin-type"
-          //     fullWidth
-          //     variant="standard"
-          //   />,
           <FormControl fullWidth>
             <InputLabel id="check-in-type">Check In Type</InputLabel>
             <Select
@@ -292,7 +350,6 @@ export default function Dashboard() {
             </Select>
           </FormControl>,
           <TextField
-            value={foodWeight || ""}
             disabled={isDisabled}
             autoFocus
             margin="dense"
@@ -301,6 +358,10 @@ export default function Dashboard() {
             type="weight"
             fullWidth
             variant="standard"
+            onChange={(e) => {
+              handleTextBoxChange(e, "foodWeight");
+            }}
+            value={foodWeight || ""}
           />,
           <TextField
             autoFocus
@@ -310,6 +371,10 @@ export default function Dashboard() {
             type="first-name"
             fullWidth
             variant="standard"
+            onChange={(e) => {
+              handleTextBoxChange(e, "firstName");
+            }}
+            value={firstName}
           />,
           <TextField
             autoFocus
@@ -319,7 +384,24 @@ export default function Dashboard() {
             type="last-name"
             fullWidth
             variant="standard"
+            onChange={(e) => {
+              handleTextBoxChange(e, "lastName");
+            }}
+            value={lastName}
           />,
+          // <TextField
+          //   autoFocus
+          //   margin="dense"
+          //   id="email"
+          //   label="Email"
+          //   type="email"
+          //   fullWidth
+          //   variant="standard"
+          //   onChange={(e) => {
+          //     handleTextBoxChange(e, "email");
+          //   }}
+          //   value={email}
+          // />,
           <TextField
             autoFocus
             margin="dense"
@@ -328,24 +410,36 @@ export default function Dashboard() {
             type="number-in-household"
             fullWidth
             variant="standard"
+            onChange={(e) => {
+              handleTextBoxChange(e, "numInHousehold");
+            }}
+            value={numInHousehold}
           />,
           <TextField
             autoFocus
             margin="dense"
             id="number_under_18"
-            label="Number of People Under 18"
+            label="Number of Children Under 18"
             type="number-under-18"
             fullWidth
             variant="standard"
+            onChange={(e) => {
+              handleTextBoxChange(e, "numChildren");
+            }}
+            value={numChildren}
           />,
           <TextField
             autoFocus
             margin="dense"
             id="number_over_60"
-            label="Number of People Over 60"
+            label="Number of Adults Over 60"
             type="number-over-60"
             fullWidth
             variant="standard"
+            onChange={(e) => {
+              handleTextBoxChange(e, "numElderly");
+            }}
+            value={numElderly}
           />,
           <FormGroup>
             {" "}
@@ -359,3 +453,28 @@ export default function Dashboard() {
     </Box>
   );
 }
+
+//-----RECIPIENT DROP DOWN-----
+//   <FormControl fullWidth>
+//     <InputLabel id="family">Family</InputLabel>
+//     <Select
+//       labelId="family"
+//       id="family"
+//       value={age}
+//       label="Family"
+//       onChange={handleChange}
+//     >
+//       <MenuItem value={10}>Ten</MenuItem>
+//       <MenuItem value={20}>Twenty</MenuItem>
+//       <MenuItem value={30}>Thirty</MenuItem>
+//     </Select>
+//   </FormControl>,
+//   <TextField
+//     autoFocus
+//     margin="dense"
+//     id="checkin_type"
+//     label="Check In Type"
+//     type="checkin-type"
+//     fullWidth
+//     variant="standard"
+//   />,

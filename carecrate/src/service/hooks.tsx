@@ -57,8 +57,6 @@ export const useFirestore = () => {
       // if no data exists, user should enter family data manually on UI.
       family = docSnap.data();
     }
-
-    console.log(family);
     return family;
   };
 
