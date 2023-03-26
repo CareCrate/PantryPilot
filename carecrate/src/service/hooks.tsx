@@ -32,7 +32,7 @@ const compareArrays = (a: any, b: any) => {
 };
 
 export const useFirestore = () => {
-  const [family, setFamily] = useState<{}>({});
+  // const [family, setFamily] = useState<{}>({});
 
   const saveFamily = async (family: Family) => {
     console.log("Trying to save family");
@@ -45,6 +45,7 @@ export const useFirestore = () => {
   };
 
   const getFamily = async (phoneNumber: string) => {
+    let family: any = {};
     const docRef: DocumentReference<DocumentData> = doc(
       db,
       familyCollection,
@@ -54,9 +55,7 @@ export const useFirestore = () => {
 
     if (docSnap.exists()) {
       // if no data exists, user should enter family data manually on UI.
-      setFamily(docSnap.data());
-    } else {
-      setFamily({});
+      family = docSnap.data();
     }
 
     console.log(family);

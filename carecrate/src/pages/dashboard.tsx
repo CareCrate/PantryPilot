@@ -127,10 +127,27 @@ export default function Dashboard() {
     }
   };
 
+  const pleaseWork = async () => {
+    currentFamily = await firestore.getFamily(phoneNumber);
+    console.log(phoneNumber);
+    // console.log(currentFamily);
+    console.log(
+      "Current Family: " +
+        currentFamily.firstName +
+        " " +
+        currentFamily.lastName
+    );
+  };
+
   useEffect(() => {
     if (phoneNumber.length === 10) {
-      currentFamily = firestore.getFamily(phoneNumber);
-      console.log(phoneNumber);
+      pleaseWork();
+      // console.log(
+      //   "Current Family: " +
+      //     currentFamily.firstName +
+      //     " " +
+      //     currentFamily.lastName
+      // );
     }
   }, [phoneNumber]);
 
