@@ -16,6 +16,8 @@ import {
   Query,
   QuerySnapshot,
   onSnapshot,
+  addDoc,
+  CollectionReference,
 } from "firebase/firestore";
 import type { Family, Visit, Waste } from "../types";
 import { useEffect, useState } from "react";
@@ -23,6 +25,7 @@ import { useLocalStorage } from "./localStorage";
 
 // Collection names
 const familyCollection: string = "families";
+const familySubCollection: string = "additional";
 const visitsCollection: string = "visits";
 const wasteCollection: string = "waste";
 const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0);
@@ -40,6 +43,25 @@ export const useFirestore = () => {
     const docId: string = family.phoneNumber; // Families are stored by their phone numbers
     const save = async () => {
       await setDoc(doc(db, familyCollection, docId), family); //add family document to db
+    };
+
+    save();
+  };
+
+  const appendFamily = async (family: Family) => {
+    console.log("Appending family");
+    const docId: string = family.phoneNumber; // Families are stored by their phone numbers
+    const docRef: DocumentReference<DocumentData> = doc(
+      db,
+      familyCollection,
+      docId
+    );
+    const colRef: CollectionReference<DocumentData> = collection(
+      docRef,
+      familySubCollection
+    );
+    const save = async () => {
+      await addDoc(colRef, family); //add family document to db
     };
 
     save();
@@ -104,7 +126,14 @@ export const useFirestore = () => {
     // return dataArray;
   };
 
-  return { saveFamily, getFamily, saveVisit, saveWaste, getWaste };
+  return {
+    saveFamily,
+    appendFamily,
+    getFamily,
+    saveVisit,
+    saveWaste,
+    getWaste,
+  };
 };
 
 export const useVisitsListener = () => {

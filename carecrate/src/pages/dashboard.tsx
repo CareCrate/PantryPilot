@@ -130,7 +130,7 @@ export default function Dashboard() {
   const firestore: any = useFirestore();
   // const allVisits = useVisitsListener();
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
+  const [isFoodWeightDisabled, setIsFoodWeightDisabled] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [checkInType, setCheckInType] = useState("");
   const [foodWeight, setFoodWeight] = useState("");
@@ -140,8 +140,13 @@ export default function Dashboard() {
   const [numInHousehold, setNumInHousehold] = useState(0);
   const [numChildren, setNumChildren] = useState(0);
   const [numElderly, setNumElderly] = useState(0);
-  const [isShowMyVisits, setIsShowMyData] = useState(false);
+  const [isShowMyVisits, setIsShowMyVisits] = useState(true);
   const [myVisits, setMyVisits] = useState<Visit[]>([]);
+  const [isFamilyFound, setIsFamilyFound] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [isAppendingFamily, setIsAppendingFamily] = useState(false);
+
+  // let isAppendingFamily: boolean = false;
 
   let currentFamily: Family;
 
@@ -207,6 +212,29 @@ export default function Dashboard() {
     }
   };
 
+  const handleCheckBoxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    isAppendingFamily
+      ? setIsAppendingFamily(false)
+      : setIsAppendingFamily(true);
+    setChecked(e.target.checked);
+
+    // if (checked) {
+    //   setIsAppendingFamily(true);
+    //   setChecked(false);
+
+    //   console.log("Checked: " + checked);
+    //   console.log("isAppending: " + isAppendingFamily);
+    // } else {
+    //   setIsAppendingFamily(false);
+    //   setChecked(true);
+
+    //   console.log("Checked: " + checked);
+    //   console.log("isAppending: " + isAppendingFamily);
+    // }
+
+    // checked ? (isAppendingFamily = true) : (isAppendingFamily = false);
+  };
+
   const findFamily = async () => {
     currentFamily = await firestore.getFamily(phoneNumber);
     if (currentFamily.firstName === undefined) {
@@ -220,6 +248,7 @@ export default function Dashboard() {
       setNumInHousehold(currentFamily.numInHousehold);
       setNumChildren(currentFamily.numChildren);
       setNumElderly(currentFamily.numElderly);
+      setIsFamilyFound(true);
     }
   };
 
@@ -230,6 +259,17 @@ export default function Dashboard() {
     setNumInHousehold(0);
     setNumChildren(0);
     setNumElderly(0);
+  };
+
+  const resetCheckInModal = () => {
+    setPhoneNumber("");
+    setCheckInType("");
+    setFoodWeight("");
+    setIsFoodWeightDisabled(true);
+    setIsAppendingFamily(false);
+    resetTextFields();
+
+    setIsCheckInModalOpen(false);
   };
 
   const saveCheckIn = () => {
@@ -253,21 +293,17 @@ export default function Dashboard() {
       checkInType,
       timeOfVisit: date.toLocaleTimeString(),
     };
-    //
-    // firestore.saveFamily(familyToSave);
+
+    if (!isAppendingFamily) {
+      // firestore.saveFamily(familyToSave);
+      console.log("Save Family");
+    } else {
+      firestore.appendFamily(familyToSave);
+    }
     // firestore.saveVisit(visitToSave);
     setMyVisits((current) => [...current, visitToSave]);
-    console.log(visitToSave.timeOfVisit);
-    // const startOfDay = new Date().setUTCHours(0, 0, 0, 0);
-    // console.log("Start: " + startOfDay);
 
-    setPhoneNumber("");
-    setCheckInType("");
-    setFoodWeight("");
-    setIsDisabled(true);
-    resetTextFields();
-
-    setIsCheckInModalOpen(false);
+    resetCheckInModal();
   };
 
   useEffect(() => {
@@ -275,19 +311,24 @@ export default function Dashboard() {
       findFamily();
     } else {
       resetTextFields();
+      if (isFamilyFound) {
+        setIsFamilyFound(false);
+      }
+      setChecked(false);
+      setIsAppendingFamily(false);
     }
   }, [phoneNumber]);
-
+  //
   useEffect(() => {
     if (checkInType === "Drive In") {
       setFoodWeight("45");
-      setIsDisabled(true);
+      setIsFoodWeightDisabled(true);
     } else if (checkInType === "DoorDash") {
       setFoodWeight("25");
-      setIsDisabled(true);
+      setIsFoodWeightDisabled(true);
     } else if (checkInType === "Walk In") {
       setFoodWeight("");
-      setIsDisabled(false);
+      setIsFoodWeightDisabled(false);
     }
   }, [checkInType]);
 
@@ -354,7 +395,7 @@ export default function Dashboard() {
                 <Radio
                   size="small"
                   onClick={() => {
-                    setIsShowMyData(true);
+                    setIsShowMyVisits(true);
                   }}
                 />
               }
@@ -366,7 +407,7 @@ export default function Dashboard() {
                 <Radio
                   size="small"
                   onClick={() => {
-                    setIsShowMyData(false);
+                    setIsShowMyVisits(false);
                   }}
                 />
               }
@@ -430,7 +471,7 @@ export default function Dashboard() {
             </Select>
           </FormControl>,
           <TextField
-            disabled={isDisabled}
+            disabled={isFoodWeightDisabled}
             autoFocus
             margin="dense"
             id="weight"
@@ -524,7 +565,10 @@ export default function Dashboard() {
           <FormGroup>
             {" "}
             <FormControlLabel
-              control={<Checkbox defaultChecked={false} />}
+              sx={{ display: isFamilyFound ? "block" : "none" }}
+              control={
+                <Checkbox checked={checked} onChange={handleCheckBoxChange} />
+              }
               label="Add New Family to Existing Phone Number"
             />
           </FormGroup>,
