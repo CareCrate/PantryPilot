@@ -22,18 +22,6 @@ import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { Family, Visit } from "../types";
 
-// ----- Number not change on scroll in text field-----
-//
-// onFocus={(e) =>
-//   e.target.addEventListener(
-//     "wheel",
-//     function (e) {
-//       e.preventDefault();
-//     },
-//     { passive: false }
-//   )
-// }
-
 // Available Fields for Mapping
 const fields: GridColDef[] = [
   {
@@ -101,7 +89,7 @@ export default function Dashboard() {
   const firestore: any = useFirestore();
 
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [checkInType, setCheckInType] = useState("");
   const [foodWeight, setFoodWeight] = useState("");
@@ -116,11 +104,6 @@ export default function Dashboard() {
 
   const handleAddCheckinClick = () => {
     setIsCheckInModalOpen(true);
-    setPhoneNumber("");
-    setCheckInType("");
-    setFoodWeight("");
-    setIsDisabled(false);
-    resetTextFields();
   };
 
   const handleCheckInTypeChange = (event: SelectChangeEvent) => {
@@ -129,10 +112,14 @@ export default function Dashboard() {
 
   const handleTextBoxChange = (e: any, textBoxToUpdate: string) => {
     const numRegex = /^[0-9\b]+$/;
-    const letterRegex = /^[a-zA-Z]+$/;
-    const emailRegex =
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-    if (e.target.value === "" || numRegex.test(e.target.value)) {
+    const letterRegex = /^[a-zA-Z\-b]+$/;
+    const emailRegex = /^[a-zA-Z0-9.@\-]+$/;
+    if (
+      textBoxToUpdate !== "email" &&
+      textBoxToUpdate !== "firstName" &&
+      textBoxToUpdate !== "lastName" &&
+      (e.target.value === "" || numRegex.test(e.target.value))
+    ) {
       switch (textBoxToUpdate) {
         case "phoneNumber": {
           setPhoneNumber(e.target.value);
@@ -155,7 +142,10 @@ export default function Dashboard() {
           break;
         }
       }
-    } else if (e.target.value === "" || letterRegex.test(e.target.value)) {
+    } else if (
+      textBoxToUpdate !== "email" &&
+      (e.target.value === "" || letterRegex.test(e.target.value))
+    ) {
       switch (textBoxToUpdate) {
         case "firstName": {
           setFirstName(e.target.value);
@@ -183,6 +173,7 @@ export default function Dashboard() {
       console.log(currentFamily);
       setFirstName(currentFamily.firstName);
       setLastName(currentFamily.lastName);
+      setEmail(currentFamily.email);
       setNumInHousehold(currentFamily.numInHousehold);
       setNumChildren(currentFamily.numChildren);
       setNumElderly(currentFamily.numElderly);
@@ -203,7 +194,7 @@ export default function Dashboard() {
     let familyToSave: Family = {
       firstName,
       lastName,
-      email: "hi@bye.com",
+      email,
       phoneNumber,
       numInHousehold,
       numChildren,
@@ -220,8 +211,14 @@ export default function Dashboard() {
       timeOfVisit: date.toLocaleString(),
     };
 
-    firestore.saveFamily(familyToSave);
+    // firestore.saveFamily(familyToSave);
     // firestore.saveVisit(visitToSave);
+
+    setPhoneNumber("");
+    setCheckInType("");
+    setFoodWeight("");
+    setIsDisabled(true);
+    resetTextFields();
 
     setIsCheckInModalOpen(false);
   };
@@ -389,19 +386,19 @@ export default function Dashboard() {
             }}
             value={lastName}
           />,
-          // <TextField
-          //   autoFocus
-          //   margin="dense"
-          //   id="email"
-          //   label="Email"
-          //   type="email"
-          //   fullWidth
-          //   variant="standard"
-          //   onChange={(e) => {
-          //     handleTextBoxChange(e, "email");
-          //   }}
-          //   value={email}
-          // />,
+          <TextField
+            autoFocus
+            margin="dense"
+            id="email"
+            label="Email"
+            type="email"
+            fullWidth
+            variant="standard"
+            onChange={(e) => {
+              handleTextBoxChange(e, "email");
+            }}
+            value={email}
+          />,
           <TextField
             autoFocus
             margin="dense"
