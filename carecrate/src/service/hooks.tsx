@@ -25,6 +25,7 @@ import { useLocalStorage } from "./localStorage";
 const familyCollection: string = "families";
 const visitsCollection: string = "visits";
 const wasteCollection: string = "waste";
+const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0);
 
 // Helper function for useCurrentVisits()
 const compareArrays = (a: any, b: any) => {
@@ -116,7 +117,7 @@ export const useVisitsListener = () => {
     // Query visits
     const q: Query<DocumentData> = query(
       collection(db, "visits"),
-      where("id", ">=", 1678580485135) // This should either be the timestamp of when that day started, or when the user logged in
+      where("id", ">=", startOfDay) // This should either be the timestamp of when that day started, or when the user logged in
     );
 
     // Listen to Query

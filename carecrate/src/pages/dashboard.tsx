@@ -1,6 +1,6 @@
 import DataCard from "@/components/dashboard/DataCard";
 import Modal from "@/components/dashboard/Modal";
-import { useFirestore } from "@/service/hooks";
+import { useFirestore, useVisitsListener } from "@/service/hooks";
 import {
   Box,
   Button,
@@ -19,75 +19,116 @@ import {
   Typography,
 } from "@mui/material";
 import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
 import { useEffect, useState } from "react";
 import { Family, Visit } from "../types";
 
 // Available Fields for Mapping
 const fields: GridColDef[] = [
   {
-    field: "first_name",
+    field: "firstName",
     headerName: "First Name",
     width: 150,
   },
   {
-    field: "last_name",
+    field: "lastName",
     headerName: "Last Name",
     width: 150,
   },
   {
-    field: "method_of_checkin",
+    field: "checkInType",
     headerName: "Method of Checkin",
     width: 150,
   },
   {
-    field: "timestamp",
+    field: "timeOfVisit",
     headerName: "Timestamp",
     width: 300,
   },
 ];
+//
 
 // TODO: Generate based on Real Data.
-const data: GridRowsProp = [
+// const myData: GridRowsProp = [
+//   {
+//     id: 1,
+//     first_name: "Jane",
+//     last_name: "Doe",
+//     method_of_checkin: "Doordash",
+//     timestamp: "12:30 PM",
+//   },
+//   {
+//     id: 2,
+//     first_name: "Bob",
+//     last_name: "Doen",
+//     method_of_checkin: "On-Site",
+//     timestamp: "1:15 PM",
+//   },
+//   {
+//     id: 3,
+//     first_name: "Jenna",
+//     last_name: "Worthington",
+//     method_of_checkin: "Doordash",
+//     timestamp: "3:45 PM",
+//   },
+//   {
+//     id: 4,
+//     first_name: "Bill",
+//     last_name: "Nye",
+//     method_of_checkin: "On-Site",
+//     timestamp: "9:20 AM",
+//   },
+//   {
+//     id: 5,
+//     first_name: "Sara",
+//     last_name: "SpringStein",
+//     method_of_checkin: "Doordash",
+//     timestamp: "7:15 AM",
+//   },
+// ];
+
+const allData: GridRowsProp = [
   {
     id: 1,
-    first_name: "Jane",
-    last_name: "Doe",
-    method_of_checkin: "Doordash",
-    timestamp: "12:30 PM",
+    firstName: "Bob",
+    lastName: "Doe",
+    checkInType: "Doordash",
+    timeOfVisit: "12:30 PM",
   },
   {
     id: 2,
-    first_name: "Bob",
-    last_name: "Doen",
-    method_of_checkin: "On-Site",
-    timestamp: "1:15 PM",
+    firstName: "Mary",
+    lastName: "Doen",
+    checkInType: "On-Site",
+    timeOfVisit: "1:15 PM",
   },
   {
     id: 3,
-    first_name: "Jenna",
-    last_name: "Worthington",
-    method_of_checkin: "Doordash",
-    timestamp: "3:45 PM",
+    firstName: "Amy",
+    lastName: "Worthington",
+    checkInType: "Doordash",
+    timeOfVisit: "3:45 PM",
   },
   {
     id: 4,
-    first_name: "Bill",
-    last_name: "Nye",
-    method_of_checkin: "On-Site",
-    timestamp: "9:20 AM",
+    firstName: "Dylan",
+    lastName: "Nye",
+    checkInType: "On-Site",
+    timeOfVisit: "9:20 AM",
   },
   {
     id: 5,
-    first_name: "Sara",
-    last_name: "SpringStein",
-    method_of_checkin: "Doordash",
-    timestamp: "7:15 AM",
+    firstName: "Josh",
+    lastName: "SpringStein",
+    checkInType: "Doordash",
+    timeOfVisit: "7:15 AM",
   },
 ];
 
 export default function Dashboard() {
   const firestore: any = useFirestore();
-
+  // const allVisits = useVisitsListener();
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -99,6 +140,8 @@ export default function Dashboard() {
   const [numInHousehold, setNumInHousehold] = useState(0);
   const [numChildren, setNumChildren] = useState(0);
   const [numElderly, setNumElderly] = useState(0);
+  const [isShowMyVisits, setIsShowMyData] = useState(false);
+  const [myVisits, setMyVisits] = useState<Visit[]>([]);
 
   let currentFamily: Family;
 
@@ -208,11 +251,15 @@ export default function Dashboard() {
       lastName,
       foodWeight: parseInt(foodWeight),
       checkInType,
-      timeOfVisit: date.toLocaleString(),
+      timeOfVisit: date.toLocaleTimeString(),
     };
-
+    //
     // firestore.saveFamily(familyToSave);
     // firestore.saveVisit(visitToSave);
+    setMyVisits((current) => [...current, visitToSave]);
+    console.log(visitToSave.timeOfVisit);
+    // const startOfDay = new Date().setUTCHours(0, 0, 0, 0);
+    // console.log("Start: " + startOfDay);
 
     setPhoneNumber("");
     setCheckInType("");
@@ -226,6 +273,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (phoneNumber.length === 10) {
       findFamily();
+    } else {
+      resetTextFields();
     }
   }, [phoneNumber]);
 
@@ -293,12 +342,46 @@ export default function Dashboard() {
               + Add Family
             </Button>
           </Stack>
+          <RadioGroup
+            row
+            aria-labelledby="demo-row-radio-buttons-group-label"
+            name="row-radio-buttons-group"
+            defaultValue="mine"
+          >
+            <FormControlLabel
+              value="mine"
+              control={
+                <Radio
+                  size="small"
+                  onClick={() => {
+                    setIsShowMyData(true);
+                  }}
+                />
+              }
+              label="Mine"
+            />
+            <FormControlLabel
+              value="all"
+              control={
+                <Radio
+                  size="small"
+                  onClick={() => {
+                    setIsShowMyData(false);
+                  }}
+                />
+              }
+              label="All"
+            />
+          </RadioGroup>
           <Paper
             component="div"
             elevation={3}
             sx={{ height: 500, width: "100%", marginTop: "2em" }}
           >
-            <DataGrid rows={data} columns={fields} />
+            <DataGrid
+              rows={isShowMyVisits ? myVisits : allData}
+              columns={fields}
+            />
           </Paper>
         </Grid>
       </Grid>
