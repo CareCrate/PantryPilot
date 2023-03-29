@@ -428,7 +428,8 @@ export default function Dashboard() {
       </Grid>
       <Modal
         open={isCheckInModalOpen}
-        onClose={() => saveCheckIn()}
+        onSubmit={saveCheckIn}
+        onClose={() => {}}
         title="Checkin"
         content="To checkin a user, please enter in their associated informaton. If a phone number is found, the information will be populated automatically."
         submitText="Submit"
