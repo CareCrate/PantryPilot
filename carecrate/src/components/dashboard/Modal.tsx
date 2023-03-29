@@ -57,6 +57,25 @@ const Modal: FunctionComponent<Props> = ({ title, content, inputFields, open, on
           >
             {submitText}
           </Button>
+          <Button
+            disableElevation
+            disableRipple
+            disableTouchRipple
+            sx={{ 
+              textTransform: "none",
+              color: '#FFF',
+              backgroundColor: '#E0E0E0', 
+              opacity: '80%', 
+              transition: 'background-color .2s, box-shadow .2s, color .2s', 
+              '&:hover': {
+                backgroundColor: '#E0E0E0',
+                opacity: '100%'
+              }
+            }}
+            onClick={handleCloseModal}
+          >
+            Cancel
+          </Button>
         </DialogActions>
       </Dialog>
     </>
