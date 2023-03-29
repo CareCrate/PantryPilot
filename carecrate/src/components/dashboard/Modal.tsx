@@ -6,9 +6,8 @@ import {
   DialogContentText,
   DialogTitle,
   Stack,
-  TextField,
 } from "@mui/material";
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent } from "react";
 
 type Props = {
   title: string;
@@ -20,16 +19,13 @@ type Props = {
   onSubmit: () => void;
 };
 
-const Modal: FunctionComponent<Props> = ({
-  title,
-  content,
-  inputFields,
-  open,
-  onClose,
-  submitText,
-  onSubmit
-}) => {
+const Modal: FunctionComponent<Props> = ({ title, content, inputFields, open, onClose, submitText, onSubmit }) => {
+  
   const handleCloseModal = () => {
+    onClose(false);
+  };
+
+  const handleSubmitModal = () => {
     onSubmit();
     onClose(false);
   };
@@ -55,7 +51,7 @@ const Modal: FunctionComponent<Props> = ({
             disableRipple
             disableTouchRipple
             sx={{ textTransform: "none" }}
-            onClick={handleCloseModal}
+            onClick={handleSubmitModal}
           >
             {submitText}
           </Button>
