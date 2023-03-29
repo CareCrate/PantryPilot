@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
+import { Box, Button, Checkbox, FormControlLabel, Link, TextField, Typography } from '@mui/material';
 import { GetServerSideProps } from 'next';
 import type { Session } from 'next-auth';
 import { useSession, getSession } from 'next-auth/react';
@@ -23,6 +23,7 @@ export default function Signup() {
         <TextField margin="normal" required fullWidth name="password" label="Password" type="password" id="password" autoComplete="current-password" />
         <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
         <Button type="submit" fullWidth disableElevation disableRipple disableTouchRipple variant="contained" sx={{ mt: 3, mb: 2, textTransform: 'none' }}>Sign In</Button>
+        <Link href="/signup"> Not registered? </Link>
       </Box>
     </Box>
   )
