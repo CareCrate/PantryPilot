@@ -17,6 +17,7 @@ type Props = {
   open: boolean;
   submitText: string;
   onClose: (arg0: boolean) => void;
+  onSubmit: () => void;
 };
 
 const Modal: FunctionComponent<Props> = ({
@@ -26,8 +27,10 @@ const Modal: FunctionComponent<Props> = ({
   open,
   onClose,
   submitText,
+  onSubmit
 }) => {
   const handleCloseModal = () => {
+    onSubmit();
     onClose(false);
   };
 
