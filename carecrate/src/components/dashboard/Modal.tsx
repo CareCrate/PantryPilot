@@ -17,11 +17,13 @@ type Props = {
   submitText: string;
   onClose: (arg0: boolean) => void;
   onSubmit: () => void;
+  onCancel: () => void;
 };
 
-const Modal: FunctionComponent<Props> = ({ title, content, inputFields, open, onClose, submitText, onSubmit }) => {
+const Modal: FunctionComponent<Props> = ({ title, content, inputFields, open, onClose, submitText, onSubmit, onCancel }) => {
   
   const handleCloseModal = () => {
+    onCancel();
     onClose(false);
   };
 

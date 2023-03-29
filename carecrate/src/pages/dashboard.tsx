@@ -429,6 +429,7 @@ export default function Dashboard() {
       <Modal
         open={isCheckInModalOpen}
         onSubmit={saveCheckIn}
+        onCancel={resetCheckInModal}
         onClose={() => setIsCheckInModalOpen(false)}
         title="Checkin"
         content="To checkin a user, please enter in their associated informaton. If a phone number is found, the information will be populated automatically."
