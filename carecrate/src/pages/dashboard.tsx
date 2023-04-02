@@ -128,7 +128,8 @@ const allData: GridRowsProp = [
 
 export default function Dashboard() {
   const firestore: any = useFirestore();
-  // const allVisits = useVisitsListener();
+  const allVisits: any = useVisitsListener();
+
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isFoodWeightDisabled, setIsFoodWeightDisabled] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -300,7 +301,7 @@ export default function Dashboard() {
     } else {
       firestore.appendFamily(familyToSave);
     }
-    // firestore.saveVisit(visitToSave);
+    firestore.saveVisit(visitToSave);
     setMyVisits((current) => [...current, visitToSave]);
 
     resetCheckInModal();
@@ -420,7 +421,7 @@ export default function Dashboard() {
             sx={{ height: 500, width: "100%", marginTop: "2em" }}
           >
             <DataGrid
-              rows={isShowMyVisits ? myVisits : allData}
+              rows={isShowMyVisits ? myVisits : allVisits}
               columns={fields}
             />
           </Paper>

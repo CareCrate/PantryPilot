@@ -20,7 +20,7 @@ import {
   CollectionReference,
 } from "firebase/firestore";
 import type { Family, Visit, Waste } from "../types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "./localStorage";
 
 // Collection names
@@ -29,11 +29,6 @@ const familySubCollection: string = "additional";
 const visitsCollection: string = "visits";
 const wasteCollection: string = "waste";
 const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0);
-
-// Helper function for useCurrentVisits()
-const compareArrays = (a: any, b: any) => {
-  return JSON.stringify(a) === JSON.stringify(b);
-};
 
 export const useFirestore = () => {
   // const [family, setFamily] = useState<{}>({});
@@ -139,35 +134,32 @@ export const useFirestore = () => {
 export const useVisitsListener = () => {
   const [currentVisits, setCurrentVisits] = useState<[]>([]);
   // const [visits, setVisits] = useLocalStorage('the key', [values]);
-  const [tempVisitDocs, setTempVisitDocs] = useState<[]>([]);
+  const effectHasRun = useRef(false);
 
   // This listener should only be created on mount, not for every render
   useEffect(() => {
-    // Query visits
-    const q: Query<DocumentData> = query(
-      collection(db, "visits"),
-      where("id", ">=", startOfDay) // This should either be the timestamp of when that day started, or when the user logged in
-    );
+    if (!effectHasRun.current) {
+      // Query visits
+      const q: Query<DocumentData> = query(
+        collection(db, "visits"),
+        where("id", ">=", startOfDay) // This should either be the timestamp of when that day started, or when the user logged in
+      );
+      //
+      // Listen to Query
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const visitDocs: any = [];
+        querySnapshot.forEach((doc) => {
+          visitDocs.push(doc.data());
+        });
 
-    // Listen to Query
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const visitDocs: any = [];
-      querySnapshot.forEach((doc) => {
-        visitDocs.push(doc.data());
-        console.log("Snapshot");
+        setCurrentVisits(visitDocs);
       });
 
-      // Only set state when visitDocs changes
-      if (!compareArrays(visitDocs, tempVisitDocs)) {
-        console.log("Compared visits arrays");
-        setTempVisitDocs(visitDocs);
-      }
-    });
+      return () => {
+        effectHasRun.current = true;
+      };
+    }
   }, []);
-
-  useEffect(() => {
-    setCurrentVisits(tempVisitDocs);
-  }, [tempVisitDocs]);
 
   return currentVisits;
 };
