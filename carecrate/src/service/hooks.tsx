@@ -24,20 +24,38 @@ import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "./localStorage";
 
 // Collection names
-const familyCollection: string = "families";
-const familySubCollection: string = "additional";
+const familyCollection: string = "familyAccounts";
+const familySubCollection: string = "families";
 const visitsCollection: string = "visits";
 const wasteCollection: string = "waste";
-const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0);
+const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0); //TODO: fix this time
 
 export const useFirestore = () => {
-  // const [family, setFamily] = useState<{}>({});
-
+  //PREPARE TO DELETE
   const saveFamily = async (family: Family) => {
     console.log("Trying to save family");
     const docId: string = family.phoneNumber; // Families are stored by their phone numbers
     const save = async () => {
       await setDoc(doc(db, familyCollection, docId), family); //add family document to db
+    };
+
+    save();
+  };
+
+  const newSaveFamily = async (family: Family) => {
+    console.log("New Save Family");
+    const docId: string = family.phoneNumber;
+    const familyID: string = family.firstName + " " + family.lastName;
+    const docRef: DocumentReference<DocumentData> = doc(
+      db,
+      familyCollection,
+      docId,
+      familySubCollection,
+      familyID
+    );
+
+    const save = async () => {
+      await setDoc(docRef, family);
     };
 
     save();
@@ -62,11 +80,12 @@ export const useFirestore = () => {
     save();
   };
 
+  //PREPARE TO DELETE
   const getFamily = async (phoneNumber: string) => {
     let family: any = {};
     const docRef: DocumentReference<DocumentData> = doc(
       db,
-      familyCollection,
+      "families",
       phoneNumber
     );
     const docSnap: DocumentSnapshot<DocumentData> = await getDoc(docRef);
@@ -78,6 +97,29 @@ export const useFirestore = () => {
     return family;
   };
 
+  const queryFamilies = async (phoneNumber: string) => {
+    const docId: string = phoneNumber;
+    const docRef: DocumentReference<DocumentData> = doc(
+      db,
+      familyCollection,
+      docId
+    );
+    const colRef: CollectionReference<DocumentData> = collection(
+      docRef,
+      familySubCollection
+    );
+
+    const q = query(colRef);
+    let families: any = [];
+
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      families.push(doc.data());
+    });
+
+    return families;
+  };
+
   const saveVisit = async (visit: Visit) => {
     const docId: string = visit.id.toString(); //visits are stored by their timestamp
 
@@ -85,9 +127,17 @@ export const useFirestore = () => {
       await setDoc(doc(db, visitsCollection, docId), visit); //add visit to db
     };
 
+    const docRef: DocumentReference<DocumentData> = doc(
+      db,
+      familyCollection,
+      visit.phoneNumber,
+      familySubCollection,
+      visit.firstName + " " + visit.lastName
+    );
+
     // update the family's array of visits each time they check in.
     const update = async () => {
-      await updateDoc(doc(db, "families", visit.phoneNumber), {
+      await updateDoc(docRef, {
         visits: arrayUnion(docId),
       });
     };
@@ -123,8 +173,10 @@ export const useFirestore = () => {
 
   return {
     saveFamily,
+    newSaveFamily,
     appendFamily,
     getFamily,
+    queryFamilies,
     saveVisit,
     saveWaste,
     getWaste,

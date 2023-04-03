@@ -24,6 +24,29 @@ import RadioGroup from "@mui/material/RadioGroup";
 import { useEffect, useState } from "react";
 import { Family, Visit } from "../types";
 
+/**
+ * TODO
+ * First name and last name are immutable unless box is checked
+ * Fix startOfDay time
+ * Fix virtual data in db (StackOverflow bookmark)
+ * Start modal at top of scroll
+ * Make form fields required
+ * Boxes at the top
+ * Figure out delay in getFamily call (DONE)
+ * Return data instead of Promise<pending> (DONE)
+ * Fix email text box error (DONE)
+ * Hook up recent check ins list (DONE)
+ * Toggle recent vs all check ins (DONE)
+ * Check box only displays if family is found (DONE)
+ * Create subcollection if box is checked (DONE)
+ * If check box disappears, disable isAppending (DONE)
+ * Figure out visit document listener bug (DONE)
+ * Bind click event to submit button (DONE)
+ * Fix state delay for recipient drop down (DONE)
+ * Dynamic recipient drop down menu (DONE)
+ * Fix the way visits are saved to the db (DONE)
+ */
+
 // Available Fields for Mapping
 const fields: GridColDef[] = [
   {
@@ -47,48 +70,46 @@ const fields: GridColDef[] = [
     width: 300,
   },
 ];
-//
-
-// TODO: Generate based on Real Data.
-// const myData: GridRowsProp = [
-//   {
-//     id: 1,
-//     first_name: "Jane",
-//     last_name: "Doe",
-//     method_of_checkin: "Doordash",
-//     timestamp: "12:30 PM",
-//   },
-//   {
-//     id: 2,
-//     first_name: "Bob",
-//     last_name: "Doen",
-//     method_of_checkin: "On-Site",
-//     timestamp: "1:15 PM",
-//   },
-//   {
-//     id: 3,
-//     first_name: "Jenna",
-//     last_name: "Worthington",
-//     method_of_checkin: "Doordash",
-//     timestamp: "3:45 PM",
-//   },
-//   {
-//     id: 4,
-//     first_name: "Bill",
-//     last_name: "Nye",
-//     method_of_checkin: "On-Site",
-//     timestamp: "9:20 AM",
-//   },
-//   {
-//     id: 5,
-//     first_name: "Sara",
-//     last_name: "SpringStein",
-//     method_of_checkin: "Doordash",
-//     timestamp: "7:15 AM",
-//   },
-// ];
 
 const allData: GridRowsProp = [
+  {
+    id: 1,
+    firstName: "Bob",
+    lastName: "Doe",
+    checkInType: "Doordash",
+    timeOfVisit: "12:30 PM",
+  },
+  {
+    id: 2,
+    firstName: "Mary",
+    lastName: "Doen",
+    checkInType: "On-Site",
+    timeOfVisit: "1:15 PM",
+  },
+  {
+    id: 3,
+    firstName: "Amy",
+    lastName: "Worthington",
+    checkInType: "Doordash",
+    timeOfVisit: "3:45 PM",
+  },
+  {
+    id: 4,
+    firstName: "Dylan",
+    lastName: "Nye",
+    checkInType: "On-Site",
+    timeOfVisit: "9:20 AM",
+  },
+  {
+    id: 5,
+    firstName: "Josh",
+    lastName: "SpringStein",
+    checkInType: "Doordash",
+    timeOfVisit: "7:15 AM",
+  },
+];
+
+const dummyData: any = [
   {
     id: 1,
     firstName: "Bob",
@@ -146,10 +167,12 @@ export default function Dashboard() {
   const [isFamilyFound, setIsFamilyFound] = useState(false);
   const [checked, setChecked] = useState(false);
   const [isAppendingFamily, setIsAppendingFamily] = useState(false);
+  const [selectedFamily, setSelectedFamily] = useState("");
+  const [selectedFamilyIndex, setSelectedFamilyIndex] = useState(-1);
+  const [hasAdditionalFamilies, setHasAdditionalFamilies] = useState(false);
+  const [queriedFamilies, setQueriedFamilies] = useState<Family[]>([]);
 
   // let isAppendingFamily: boolean = false;
-
-  let currentFamily: Family;
 
   const handleAddCheckinClick = () => {
     setIsCheckInModalOpen(true);
@@ -157,6 +180,13 @@ export default function Dashboard() {
 
   const handleCheckInTypeChange = (event: SelectChangeEvent) => {
     setCheckInType(event.target.value as string);
+  };
+
+  const handleSelectedFamilyChange = (index: number) => {
+    setSelectedFamilyIndex(index);
+    setSelectedFamily(
+      queriedFamilies[index].firstName + " " + queriedFamilies[index].lastName
+    );
   };
 
   const handleTextBoxChange = (e: any, textBoxToUpdate: string) => {
@@ -237,20 +267,7 @@ export default function Dashboard() {
   };
 
   const findFamily = async () => {
-    currentFamily = await firestore.getFamily(phoneNumber);
-    if (currentFamily.firstName === undefined) {
-      console.log("Family does not exist");
-      resetTextFields();
-    } else {
-      console.log(currentFamily);
-      setFirstName(currentFamily.firstName);
-      setLastName(currentFamily.lastName);
-      setEmail(currentFamily.email);
-      setNumInHousehold(currentFamily.numInHousehold);
-      setNumChildren(currentFamily.numChildren);
-      setNumElderly(currentFamily.numElderly);
-      setIsFamilyFound(true);
-    }
+    setQueriedFamilies(await firestore.queryFamilies(phoneNumber));
   };
 
   const resetTextFields = () => {
@@ -265,6 +282,10 @@ export default function Dashboard() {
   const resetCheckInModal = () => {
     setPhoneNumber("");
     setCheckInType("");
+    setSelectedFamily("");
+    setSelectedFamilyIndex(-1);
+    setQueriedFamilies([]);
+    setHasAdditionalFamilies(false);
     setFoodWeight("");
     setIsFoodWeightDisabled(true);
     setIsAppendingFamily(false);
@@ -297,7 +318,8 @@ export default function Dashboard() {
 
     if (!isAppendingFamily) {
       // firestore.saveFamily(familyToSave);
-      console.log("Save Family");
+      // console.log("Save Family");
+      firestore.newSaveFamily(familyToSave);
     } else {
       firestore.appendFamily(familyToSave);
     }
@@ -317,6 +339,10 @@ export default function Dashboard() {
       }
       setChecked(false);
       setIsAppendingFamily(false);
+      setHasAdditionalFamilies(false);
+      setSelectedFamilyIndex(-1);
+      setQueriedFamilies([]);
+      setSelectedFamily("");
     }
   }, [phoneNumber]);
   //
@@ -332,6 +358,35 @@ export default function Dashboard() {
       setIsFoodWeightDisabled(false);
     }
   }, [checkInType]);
+
+  useEffect(() => {
+    if (queriedFamilies.length === 0) {
+      resetTextFields();
+    } else if (queriedFamilies.length === 1) {
+      setFirstName(queriedFamilies[0].firstName);
+      setLastName(queriedFamilies[0].lastName);
+      setEmail(queriedFamilies[0].email);
+      setNumInHousehold(queriedFamilies[0].numInHousehold);
+      setNumChildren(queriedFamilies[0].numChildren);
+      setNumElderly(queriedFamilies[0].numElderly);
+      setIsFamilyFound(true);
+    } else if (queriedFamilies.length > 1 && selectedFamilyIndex == -1) {
+      console.log("No family selected");
+      setHasAdditionalFamilies(true);
+      resetTextFields();
+      setIsFamilyFound(true);
+    } else if (queriedFamilies.length > 1 && selectedFamilyIndex != -1) {
+      console.log("Using queried families");
+      setHasAdditionalFamilies(true);
+      setFirstName(queriedFamilies[selectedFamilyIndex].firstName);
+      setLastName(queriedFamilies[selectedFamilyIndex].lastName);
+      setEmail(queriedFamilies[selectedFamilyIndex].email);
+      setNumInHousehold(queriedFamilies[selectedFamilyIndex].numInHousehold);
+      setNumChildren(queriedFamilies[selectedFamilyIndex].numChildren);
+      setNumElderly(queriedFamilies[selectedFamilyIndex].numElderly);
+      setIsFamilyFound(true);
+    }
+  }, [queriedFamilies, selectedFamilyIndex]);
 
   return (
     <Box
@@ -371,7 +426,7 @@ export default function Dashboard() {
           {/* TODO: Implement Dynamic List */}
           <Stack direction="row" spacing={0} sx={{ marginTop: "5em" }}>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              Recent Checkins
+              Today's Checkins
             </Typography>
             <Button
               variant="contained"
@@ -450,15 +505,31 @@ export default function Dashboard() {
             }}
             value={phoneNumber}
           />,
-          <TextField
-            autoFocus
-            margin="dense"
-            id="recipient"
-            label="Recipient"
-            type="recipient"
+          <FormControl
             fullWidth
-            variant="standard"
-          />,
+            sx={{ display: hasAdditionalFamilies ? "inline-flex" : "none" }}
+          >
+            <InputLabel id="select-family">Select Family</InputLabel>
+            <Select
+              labelId="select-family"
+              id="select-family"
+              value={selectedFamily}
+              label="Select Family"
+              // onChange={handleSelectedFamilyChange}
+            >
+              {queriedFamilies.map((family: any, index: number) => {
+                return (
+                  <MenuItem
+                    key={index}
+                    value={family.firstName + " " + family.lastName}
+                    onClick={() => handleSelectedFamilyChange(index)}
+                  >
+                    {family.firstName + " " + family.lastName}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>,
           <FormControl fullWidth>
             <InputLabel id="check-in-type">Check In Type</InputLabel>
             <Select
@@ -605,3 +676,13 @@ export default function Dashboard() {
 //     fullWidth
 //     variant="standard"
 //   />,
+
+// <TextField
+//             autoFocus
+//             margin="dense"
+//             id="recipient"
+//             label="Recipient"
+//             type="recipient"
+//             fullWidth
+//             variant="standard"
+//           />,

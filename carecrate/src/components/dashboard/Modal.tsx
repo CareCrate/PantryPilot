@@ -20,8 +20,16 @@ type Props = {
   onCancel: () => void;
 };
 
-const Modal: FunctionComponent<Props> = ({ title, content, inputFields, open, onClose, submitText, onSubmit, onCancel }) => {
-  
+const Modal: FunctionComponent<Props> = ({
+  title,
+  content,
+  inputFields,
+  open,
+  onClose,
+  submitText,
+  onSubmit,
+  onCancel,
+}) => {
   const handleCloseModal = () => {
     onCancel();
     onClose(false);
@@ -48,6 +56,25 @@ const Modal: FunctionComponent<Props> = ({ title, content, inputFields, open, on
         </DialogContent>
         <DialogActions>
           <Button
+            disableElevation
+            disableRipple
+            disableTouchRipple
+            sx={{
+              textTransform: "none",
+              color: "#FFF",
+              backgroundColor: "#E0E0E0",
+              opacity: "80%",
+              transition: "background-color .2s, box-shadow .2s, color .2s",
+              "&:hover": {
+                backgroundColor: "#E0E0E0",
+                opacity: "100%",
+              },
+            }}
+            onClick={handleCloseModal}
+          >
+            Cancel
+          </Button>
+          <Button
             variant="contained"
             disableElevation
             disableRipple
@@ -56,25 +83,6 @@ const Modal: FunctionComponent<Props> = ({ title, content, inputFields, open, on
             onClick={handleSubmitModal}
           >
             {submitText}
-          </Button>
-          <Button
-            disableElevation
-            disableRipple
-            disableTouchRipple
-            sx={{ 
-              textTransform: "none",
-              color: '#FFF',
-              backgroundColor: '#E0E0E0', 
-              opacity: '80%', 
-              transition: 'background-color .2s, box-shadow .2s, color .2s', 
-              '&:hover': {
-                backgroundColor: '#E0E0E0',
-                opacity: '100%'
-              }
-            }}
-            onClick={handleCloseModal}
-          >
-            Cancel
           </Button>
         </DialogActions>
       </Dialog>
