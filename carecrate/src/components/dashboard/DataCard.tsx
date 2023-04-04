@@ -1,13 +1,15 @@
 import { Card, CardContent, IconButton, Menu, MenuItem, Stack, Typography } from "@mui/material";
 import { FunctionComponent, useState, MouseEvent } from "react";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Session } from "next-auth";
 
 type Props = {
     subtitle: string,
     value: number,
     prev: number,
     units?: string | '',
-    showPercent: boolean
+    showPercent: boolean,
+    session: Session
 }
 
 const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units, showPercent }) => {
