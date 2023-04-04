@@ -87,15 +87,13 @@ export default function Dashboard() {
         return (
             <Box component='div' sx={{ overflowX: 'clip', position: 'relative', margin: 'auto', maxWidth: '1920px', padding: '2em' }}>
                 <Grid container spacing={0} direction='column' sx={{ width: '100%' }}>
-
                     <Grid item container direction='column' spacing={0} sx={{ flexDirection: 'column' }}>
-
                         {/* TODO: Implement Cards. */}
                         <Stack direction='row' spacing={3}>
-                            <DataCard subtitle={'Total checkins today'} value={100} prev={120} />
-                            <DataCard subtitle={'Total volunteers today'} value={4} prev={20} />
-                            <DataCard subtitle={'Total household today'} value={3000} prev={2700} />
-                            {/* <DataCard subtitle={'Food weight'} value={25} units={'lbs'} /> */}
+                            <DataCard subtitle={'Total checkins today'} value={100} prev={120} showPercent={true} />
+                            <DataCard subtitle={'Total volunteers today'} value={4} prev={20} showPercent={true} />
+                            <DataCard subtitle={'Total household today'} value={3000} prev={2700} showPercent={true} />
+                            <DataCard subtitle={'Total weight tossed (lbs)'} value={3000} prev={2700} showPercent={false} />
                         </Stack>
 
                         {/* TODO: Implement Dynamic List */}
