@@ -2,7 +2,7 @@ import NextAuth, { User } from 'next-auth';
 import WorkspaceProvider from '@/providers/workspaceProvider';
 import { WorkspaceUser, SessionUser } from '@/types';
 import { AdapterUser } from 'next-auth/adapters';
-import { isWorkspaceUser, isWorkspaceUserInSession } from '@/service/utils';
+import { isWorkspaceUser } from '@/service/utils';
 
 
 export default NextAuth({
@@ -24,21 +24,26 @@ export default NextAuth({
             if (user && isWorkspaceUser(user)) {
                 token.id = user.id;
                 token.workspaceId = user.workspaceId as unknown as string;
+                token.role = user.role;
             }
+            console.log("Token in jwt callback: ", token)
             return token;
         },
         async session({ session, user, token }) {
             if (token && session) {
-                const { id, workspaceId } = token;
-                if (isWorkspaceUserInSession(user)) {
+                const { id, workspaceId, name, role } = token;
+                if (id && workspaceId && role) {
                     const sessionUser: SessionUser = {
                         ...user,
                         id: id as string,
-                        workspaceId: workspaceId as string
+                        workspaceId: workspaceId as string,
+                        name: name as string,
+                        role: role as string
                     };
                     session.user = sessionUser;
                 }
             }
+            console.log("Session in session callback: ", session);
             return session;
         }
     }
