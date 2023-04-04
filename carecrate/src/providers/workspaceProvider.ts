@@ -48,8 +48,10 @@ async function validateWorkspaceCredentials(credentials: WorkspaceCredentials): 
             id: userId,
             workspaceId: parseInt(workspaceId),
             name: userData.name,
-            email: userData.email
+            email: userData.email,
+            role: userData.role
         }
+        console.log("Fetched user from Firestore: ", user);
         return user;
     } catch (error) {
         console.error("Error validating workspace creds: ", error);
