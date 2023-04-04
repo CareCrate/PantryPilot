@@ -1,5 +1,5 @@
 import { CredentialsConfig } from 'next-auth/providers';
-import { User, RequestInternal } from 'next-auth';
+import { RequestInternal } from 'next-auth';
 import { db } from '../firebase/initFirebase';
 import { collection , query, where, getDocs, doc } from 'firebase/firestore';
 import { WorkspaceUser, WorkspaceCredentials } from '@/types';
@@ -9,7 +9,7 @@ const WorkspaceProvider: CredentialsConfig = {
     name: "Workspace",
     type: "credentials",
     credentials: {
-        username: { label: "Username", type: "text", placeholder: "john.doe" },
+        email: { label: "Email", type: "text", placeholder: "john@doe.com" },
         password: { label: "Password", type: "password" },
         workspace: { label: "Workspace", type: "text", placeholder: "myworkspace" },
     },
@@ -19,7 +19,7 @@ const WorkspaceProvider: CredentialsConfig = {
         }
         const workspaceCredentials: WorkspaceCredentials = {
             workspace: credentials.workspace,
-            username: credentials.username,
+            email: credentials.email,
             password: credentials.password
         };
         const user = await validateWorkspaceCredentials(workspaceCredentials);
@@ -32,13 +32,13 @@ const WorkspaceProvider: CredentialsConfig = {
 
 async function validateWorkspaceCredentials(credentials: WorkspaceCredentials): Promise<WorkspaceUser | null> {
     try {
-        const { username, password, workspace } = credentials;
+        const { email, password, workspace } = credentials;
         const workspaceSnapshot = await getDocs(query(collection(db, "workspaces"), where("name", "==", workspace)));
         if (workspaceSnapshot.empty) {
             return null;
         }
         const workspaceId = workspaceSnapshot.docs[0].id;
-        const userSnapshot = await getDocs(query(collection(doc(db, "worksapces", workspaceId), "users"), where("username", "==", username), where("password", "==", password)));
+        const userSnapshot = await getDocs(query(collection(doc(db, "workspaces", workspaceId), "users"), where("email", "==", email), where("password", "==", password)));
         if (userSnapshot.empty) {
             return null;
         }
