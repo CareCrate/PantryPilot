@@ -7,7 +7,11 @@ import { GetServerSideProps } from 'next';
 import { useSession, getSession, GetSessionParams, signOut } from 'next-auth/react';
 import { Session } from 'next-auth';
 
-export default function Navbar() {
+interface NavbarProps {
+    toggleMode: () => void;
+};
+
+export default function Navbar({ toggleMode }: NavbarProps) {
     const { data: session, status } = useSession();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const handleClose = () => {
@@ -19,15 +23,6 @@ export default function Navbar() {
     const handleSignout = async () => {
         await signOut({ callbackUrl: '/login' });
         setAnchorEl(null);
-    };
-
-    const theme = useTheme();
-    const [mode, setMode] = useState<'light' | 'dark'>('light');
-    const toggleMode = () => {
-        const selectedMode = mode === 'light' ? 'dark' : 'light';
-        setMode(selectedMode);
-        localStorage.setItem('mode', selectedMode);
-        theme.palette.mode = selectedMode;
     };
 
     return (

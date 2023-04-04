@@ -2,11 +2,19 @@ import type { AppProps } from 'next/app'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import Layout from '@/components/layout'
 import { SessionProvider } from 'next-auth/react';
+import { useState } from 'react';
+
 
 export default function App({ Component, pageProps }: AppProps) {
+  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  const toggleMode = () => {
+    const selectedMode = mode === 'light' ? 'dark' : 'light';
+    setMode(selectedMode);
+    localStorage.setItem('mode', selectedMode);
+  };
   const theme = createTheme({
     palette: {
-      mode: 'light'
+      mode: mode
     },
     components: {
       MuiButton: {
@@ -34,8 +42,8 @@ export default function App({ Component, pageProps }: AppProps) {
     <SessionProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline>
-          <Layout>
-            <Component {...pageProps} />
+          <Layout toggleMode={toggleMode}>
+            <Component {...pageProps} toggleMode={toggleMode} />
           </Layout>
         </CssBaseline>
       </ThemeProvider>
