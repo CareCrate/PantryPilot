@@ -47,6 +47,11 @@ export interface WorkspaceUser extends User {
 
 export interface WorkspaceCredentials {
   workspace: string;
-  username: string;
+  email: string;
   password: string;
+}
+
+export interface SessionUser extends User {
+  id: string;
+  workspaceId: string;
 }
