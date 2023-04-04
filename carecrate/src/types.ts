@@ -40,9 +40,10 @@ export type Waste = {
 
 export interface WorkspaceUser extends User {
   id: string;
+  workspaceId: number;
   name: string;
   email: string;
-  workspaceId: number;
+  role: string;
 }
 
 export interface WorkspaceCredentials {
@@ -54,4 +55,5 @@ export interface WorkspaceCredentials {
 export interface SessionUser extends User {
   id: string;
   workspaceId: string;
+  role: string;
 }
