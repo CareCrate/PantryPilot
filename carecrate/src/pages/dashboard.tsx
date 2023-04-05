@@ -366,14 +366,12 @@ export default function Dashboard() {
             <DataCard
               subtitle={"Total checkins today"}
               value={100}
-              prev={120}
-            />
-            <DataCard subtitle={"Total volunteers today"} value={4} prev={20} />
+              prev={120} showPercent={false}            />
+            <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={false} />
             <DataCard
               subtitle={"Total household today"}
               value={3000}
-              prev={2700}
-            />
+              prev={2700} showPercent={false}            />
             {/* <DataCard subtitle={'Food weight'} value={25} units={'lbs'} /> */}
           </Stack>
 
