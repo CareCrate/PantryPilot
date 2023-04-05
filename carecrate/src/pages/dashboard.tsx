@@ -24,29 +24,6 @@ import RadioGroup from "@mui/material/RadioGroup";
 import { useEffect, useState } from "react";
 import { Family, Visit } from "../types";
 
-/**
- * TODO
- * First name and last name are immutable unless box is checked
- * Fix startOfDay time
- * Fix virtual data in db (StackOverflow bookmark)
- * Start modal at top of scroll
- * Make form fields required
- * Boxes at the top
- * Figure out delay in getFamily call (DONE)
- * Return data instead of Promise<pending> (DONE)
- * Fix email text box error (DONE)
- * Hook up recent check ins list (DONE)
- * Toggle recent vs all check ins (DONE)
- * Check box only displays if family is found (DONE)
- * Create subcollection if box is checked (DONE)
- * If check box disappears, disable isAppending (DONE)
- * Figure out visit document listener bug (DONE)
- * Bind click event to submit button (DONE)
- * Fix state delay for recipient drop down (DONE)
- * Dynamic recipient drop down menu (DONE)
- * Fix the way visits are saved to the db (DONE)
- */
-
 // Available Fields for Mapping
 const fields: GridColDef[] = [
   {
@@ -172,8 +149,6 @@ export default function Dashboard() {
   const [hasAdditionalFamilies, setHasAdditionalFamilies] = useState(false);
   const [queriedFamilies, setQueriedFamilies] = useState<Family[]>([]);
 
-  // let isAppendingFamily: boolean = false;
-
   const handleAddCheckinClick = () => {
     setIsCheckInModalOpen(true);
   };
@@ -248,22 +223,6 @@ export default function Dashboard() {
       ? setIsAppendingFamily(false)
       : setIsAppendingFamily(true);
     setChecked(e.target.checked);
-
-    // if (checked) {
-    //   setIsAppendingFamily(true);
-    //   setChecked(false);
-
-    //   console.log("Checked: " + checked);
-    //   console.log("isAppending: " + isAppendingFamily);
-    // } else {
-    //   setIsAppendingFamily(false);
-    //   setChecked(true);
-
-    //   console.log("Checked: " + checked);
-    //   console.log("isAppending: " + isAppendingFamily);
-    // }
-
-    // checked ? (isAppendingFamily = true) : (isAppendingFamily = false);
   };
 
   const findFamily = async () => {
@@ -316,14 +275,9 @@ export default function Dashboard() {
       timeOfVisit: date.toLocaleTimeString(),
     };
 
-    if (!isAppendingFamily) {
-      // firestore.saveFamily(familyToSave);
-      // console.log("Save Family");
-      firestore.newSaveFamily(familyToSave);
-    } else {
-      firestore.appendFamily(familyToSave);
-    }
+    firestore.newSaveFamily(familyToSave);
     firestore.saveVisit(visitToSave);
+
     setMyVisits((current) => [...current, visitToSave]);
 
     resetCheckInModal();
@@ -488,7 +442,7 @@ export default function Dashboard() {
         onCancel={resetCheckInModal}
         onClose={() => setIsCheckInModalOpen(false)}
         title="Checkin"
-        content="To checkin a user, please enter in their associated informaton. If a phone number is found, the information will be populated automatically."
+        content="You must fill out all form fields before you are able to submit."
         submitText="Submit"
         inputFields={[
           <TextField
@@ -505,6 +459,16 @@ export default function Dashboard() {
             }}
             value={phoneNumber}
           />,
+          <FormGroup>
+            {" "}
+            <FormControlLabel
+              sx={{ display: isFamilyFound ? "block" : "none" }}
+              control={
+                <Checkbox checked={checked} onChange={handleCheckBoxChange} />
+              }
+              label="Add New Family to Existing Phone Number"
+            />
+          </FormGroup>,
           <FormControl
             fullWidth
             sx={{ display: hasAdditionalFamilies ? "inline-flex" : "none" }}
@@ -558,7 +522,9 @@ export default function Dashboard() {
             }}
             value={foodWeight || ""}
           />,
+
           <TextField
+            disabled={isFamilyFound && !isAppendingFamily}
             autoFocus
             margin="dense"
             id="first_name"
@@ -572,6 +538,7 @@ export default function Dashboard() {
             value={firstName}
           />,
           <TextField
+            disabled={isFamilyFound && !isAppendingFamily}
             autoFocus
             margin="dense"
             id="last_name"
@@ -636,53 +603,8 @@ export default function Dashboard() {
             }}
             value={numElderly}
           />,
-          <FormGroup>
-            {" "}
-            <FormControlLabel
-              sx={{ display: isFamilyFound ? "block" : "none" }}
-              control={
-                <Checkbox checked={checked} onChange={handleCheckBoxChange} />
-              }
-              label="Add New Family to Existing Phone Number"
-            />
-          </FormGroup>,
         ]}
       />
     </Box>
   );
 }
-
-//-----RECIPIENT DROP DOWN-----
-//   <FormControl fullWidth>
-//     <InputLabel id="family">Family</InputLabel>
-//     <Select
-//       labelId="family"
-//       id="family"
-//       value={age}
-//       label="Family"
-//       onChange={handleChange}
-//     >
-//       <MenuItem value={10}>Ten</MenuItem>
-//       <MenuItem value={20}>Twenty</MenuItem>
-//       <MenuItem value={30}>Thirty</MenuItem>
-//     </Select>
-//   </FormControl>,
-//   <TextField
-//     autoFocus
-//     margin="dense"
-//     id="checkin_type"
-//     label="Check In Type"
-//     type="checkin-type"
-//     fullWidth
-//     variant="standard"
-//   />,
-
-// <TextField
-//             autoFocus
-//             margin="dense"
-//             id="recipient"
-//             label="Recipient"
-//             type="recipient"
-//             fullWidth
-//             variant="standard"
-//           />,

@@ -31,17 +31,6 @@ const wasteCollection: string = "waste";
 const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0); //TODO: fix this time
 
 export const useFirestore = () => {
-  //PREPARE TO DELETE
-  const saveFamily = async (family: Family) => {
-    console.log("Trying to save family");
-    const docId: string = family.phoneNumber; // Families are stored by their phone numbers
-    const save = async () => {
-      await setDoc(doc(db, familyCollection, docId), family); //add family document to db
-    };
-
-    save();
-  };
-
   const newSaveFamily = async (family: Family) => {
     console.log("New Save Family");
     const docId: string = family.phoneNumber;
@@ -59,42 +48,6 @@ export const useFirestore = () => {
     };
 
     save();
-  };
-
-  const appendFamily = async (family: Family) => {
-    console.log("Appending family");
-    const docId: string = family.phoneNumber; // Families are stored by their phone numbers
-    const docRef: DocumentReference<DocumentData> = doc(
-      db,
-      familyCollection,
-      docId
-    );
-    const colRef: CollectionReference<DocumentData> = collection(
-      docRef,
-      familySubCollection
-    );
-    const save = async () => {
-      await addDoc(colRef, family); //add family document to db
-    };
-
-    save();
-  };
-
-  //PREPARE TO DELETE
-  const getFamily = async (phoneNumber: string) => {
-    let family: any = {};
-    const docRef: DocumentReference<DocumentData> = doc(
-      db,
-      "families",
-      phoneNumber
-    );
-    const docSnap: DocumentSnapshot<DocumentData> = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      // if no data exists, user should enter family data manually on UI.
-      family = docSnap.data();
-    }
-    return family;
   };
 
   const queryFamilies = async (phoneNumber: string) => {
@@ -172,10 +125,7 @@ export const useFirestore = () => {
   };
 
   return {
-    saveFamily,
     newSaveFamily,
-    appendFamily,
-    getFamily,
     queryFamilies,
     saveVisit,
     saveWaste,
@@ -196,7 +146,7 @@ export const useVisitsListener = () => {
         collection(db, "visits"),
         where("id", ">=", startOfDay) // This should either be the timestamp of when that day started, or when the user logged in
       );
-      //
+
       // Listen to Query
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const visitDocs: any = [];
