@@ -1,6 +1,10 @@
 import DataCard from "@/components/dashboard/DataCard";
 import Modal from "@/components/dashboard/Modal";
-import { useFirestore, useVisitsListener } from "@/service/hooks";
+import {
+  useDriveInWeightListener,
+  useFirestore,
+  useVisitsListener,
+} from "@/service/hooks";
 import {
   Box,
   Button,
@@ -22,7 +26,7 @@ import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import { useEffect, useState } from "react";
-import { Family, Visit } from "../types";
+import { Family, Visit, Weight } from "../types";
 
 // Available Fields for Mapping
 const fields: GridColDef[] = [
@@ -127,6 +131,7 @@ const dummyData: any = [
 export default function Dashboard() {
   const firestore: any = useFirestore();
   const allVisits: any = useVisitsListener();
+  const driveInWeight: Weight = useDriveInWeightListener();
 
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isFoodWeightDisabled, setIsFoodWeightDisabled] = useState(true);
@@ -151,6 +156,7 @@ export default function Dashboard() {
 
   const handleAddCheckinClick = () => {
     setIsCheckInModalOpen(true);
+    firestore.updateFoodWeight(12);
   };
 
   const handleCheckInTypeChange = (event: SelectChangeEvent) => {
@@ -302,7 +308,8 @@ export default function Dashboard() {
   //
   useEffect(() => {
     if (checkInType === "Drive In") {
-      setFoodWeight("45");
+      setFoodWeight(driveInWeight.weight.toString());
+      console.log(driveInWeight);
       setIsFoodWeightDisabled(true);
     } else if (checkInType === "DoorDash") {
       setFoodWeight("25");
@@ -366,12 +373,21 @@ export default function Dashboard() {
             <DataCard
               subtitle={"Total checkins today"}
               value={100}
-              prev={120} showPercent={false}            />
-            <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={false} />
+              prev={120}
+              showPercent={false}
+            />
+            <DataCard
+              subtitle={"Total volunteers today"}
+              value={4}
+              prev={20}
+              showPercent={false}
+            />
             <DataCard
               subtitle={"Total household today"}
               value={3000}
-              prev={2700} showPercent={false}            />
+              prev={2700}
+              showPercent={false}
+            />
             {/* <DataCard subtitle={'Food weight'} value={25} units={'lbs'} /> */}
           </Stack>
 

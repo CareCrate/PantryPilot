@@ -36,3 +36,7 @@ export type Waste = {
   timeOfWaste: string;
   lbs: number;
 };
+
+export type Weight = {
+  weight: number;
+};

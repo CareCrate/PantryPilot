@@ -19,7 +19,7 @@ import {
   addDoc,
   CollectionReference,
 } from "firebase/firestore";
-import type { Family, Visit, Waste } from "../types";
+import type { Family, Visit, Waste, Weight } from "../types";
 import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "./localStorage";
 
@@ -28,6 +28,7 @@ const familyCollection: string = "familyAccounts";
 const familySubCollection: string = "families";
 const visitsCollection: string = "visits";
 const wasteCollection: string = "waste";
+const driveInWeightCollection: string = "driveInWeight";
 const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0); //TODO: fix this time
 
 export const useFirestore = () => {
@@ -108,6 +109,19 @@ export const useFirestore = () => {
     save();
   };
 
+  const updateFoodWeight = async (weight: number) => {
+    const docId: string = "weight";
+    const weightDoc = {
+      weight,
+    };
+
+    const save = async () => {
+      await setDoc(doc(db, driveInWeightCollection, docId), weightDoc);
+    };
+
+    save();
+  };
+
   // Configure this for my use case. Do I need a listener, or just a get?
   const getWaste = async (timestamp: string) => {
     // const q: Query<DocumentData> = query(
@@ -130,6 +144,7 @@ export const useFirestore = () => {
     saveVisit,
     saveWaste,
     getWaste,
+    updateFoodWeight,
   };
 };
 
@@ -143,7 +158,7 @@ export const useVisitsListener = () => {
     if (!effectHasRun.current) {
       // Query visits
       const q: Query<DocumentData> = query(
-        collection(db, "visits"),
+        collection(db, visitsCollection),
         where("id", ">=", startOfDay) // This should either be the timestamp of when that day started, or when the user logged in
       );
 
@@ -164,4 +179,33 @@ export const useVisitsListener = () => {
   }, []);
 
   return currentVisits;
+};
+
+export const useDriveInWeightListener = (): Weight => {
+  const [driveInWeight, setDriveInWeight] = useState<Weight>();
+  let weight: any = {};
+  const effectHasRun = useRef(false);
+
+  useEffect(() => {
+    if (!effectHasRun.current) {
+      const unsubscribe = onSnapshot(
+        doc(db, driveInWeightCollection, "weight"),
+        (doc) => {
+          console.log(`Data`);
+          console.log(doc.data());
+          if (doc.data()) {
+            weight = doc.data();
+          }
+
+          setDriveInWeight(weight);
+        }
+      );
+
+      return () => {
+        effectHasRun.current = true;
+      };
+    }
+  }, []);
+
+  return driveInWeight ? driveInWeight : { weight: 0 };
 };
