@@ -2,6 +2,7 @@ import { useTheme } from '@mui/material/styles';
 import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch } from "@mui/material";
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Brightness6Icon from '@mui/icons-material/Brightness6';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import { ChangeEvent, useState } from "react";
 import { GetServerSideProps } from 'next';
 import { useSession, getSession, GetSessionParams, signOut } from 'next-auth/react';
@@ -37,9 +38,14 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                 <Box component='div'>
                     <Stack direction='row' sx={{ alignItems: 'center' }}>
                         {session && (
-                            <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
-                                <AccountCircle fontSize='large' sx={{ color: '#FFF' }}/>
-                            </IconButton>
+                            <>
+                                <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
+                                    <AccountCircle fontSize='large' sx={{ color: '#FFF' }}/>
+                                </IconButton>
+                                <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple>
+                                    <TimelineIcon fontSize='large' sx={{ color: '#FFF' }}/>
+                                </IconButton>
+                            </>
                         )}
                         <IconButton size='large' onClick={toggleMode}>
                             <Brightness6Icon fontSize='small' />
