@@ -2,6 +2,7 @@ import { Card, CardContent, IconButton, Menu, MenuItem, Stack, Typography } from
 import { FunctionComponent, useState, MouseEvent } from "react";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Session } from "next-auth";
+import Modal from '@/components/dashboard/Modal';
 
 type Props = {
     subtitle: string,
@@ -9,11 +10,15 @@ type Props = {
     prev: number,
     units?: string | '',
     showPercent: boolean,
-    session: Session
+    session: Session,
+    editTitle: string,
+    editSubtext: string,
+    editElements: JSX.Element[],
 }
 
-const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units, showPercent }) => {
+const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units, showPercent, editTitle, editSubtext, editElements }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -37,9 +42,10 @@ const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units, show
                 <Typography variant='body2' sx={{ marginTop: '2em', textTransform: 'none' }}>{subtitle}</Typography>
             </CardContent>
             <Menu id='more-options-menu' anchorEl={anchorEl} open={open} onClose={handleClose}>
-                <MenuItem onClick={handleClose}>Edit</MenuItem>
+                <MenuItem onClick={() => setIsModalOpen(true)}>Edit</MenuItem>
                 {/* <MenuItem onClick={handleClose}>View Data</MenuItem> */}
             </Menu>
+            {(editTitle !== '' || editSubtext !== '' || editElements.length != 0) && <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title={editTitle} content={editSubtext} submitText='Submit' inputFields={editElements}/>}
         </Card>
     )
 }
