@@ -91,10 +91,15 @@ export default function Dashboard() {
                     <Grid item container direction='column' spacing={0} sx={{ flexDirection: 'column' }}>
                         {/* TODO: Implement Cards. */}
                         <Stack direction='row' spacing={3}>
-                            <DataCard subtitle={'Total checkins today'} value={100} prev={120} showPercent={true} session={session} />
-                            <DataCard subtitle={'Total volunteers today'} value={4} prev={20} showPercent={true} session={session} />
-                            <DataCard subtitle={'Total household today'} value={3000} prev={2700} showPercent={true} session={session} />
-                            <DataCard subtitle={'Total weight tossed (lbs)'} value={3000} prev={2700} showPercent={false} session={session} />
+                            <DataCard subtitle={'Total checkins today'} value={100} prev={120} showPercent={true} session={session} editTitle={''} editSubtext={''} editElements={[]} />
+                            <DataCard subtitle={'Total volunteers today'} value={4} prev={20} showPercent={true} session={session} editTitle={''} editSubtext={''} editElements={[]} />
+                            <DataCard subtitle={'Total household today'} value={3000} prev={2700} showPercent={true} session={session} editTitle={''} editSubtext={''} editElements={[]} />
+                            <DataCard subtitle={'Total weight tossed (lbs)'} value={0} prev={0} showPercent={false} session={session} editTitle={'Change Weight of Food Lost'} editSubtext={'Some cool subtext that makes sense.'} editElements={[
+                                <TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />
+                            ]} />
+                            <DataCard subtitle={'Total weight of food (lbs)'} value={0} prev={0} showPercent={false} session={session} editTitle={'Change Weight of Food'} editSubtext={'Some cool subtext that makes sense.'} editElements={[
+                                <TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />
+                            ]} />
                         </Stack>
 
                         {/* TODO: Implement Dynamic List */}
