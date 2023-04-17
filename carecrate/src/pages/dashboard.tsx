@@ -5,6 +5,7 @@ import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { SessionUser } from '@/types';
 
 // Available Fields for Mapping
 const fields: GridColDef[] = [
@@ -72,6 +73,7 @@ const data: GridRowsProp = [
 export default function Dashboard() {
     const router = useRouter();
     const { data: session, status } = useSession();
+    const user = session?.user as SessionUser | undefined;
     const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false)
     const handleAddCheckinClick = () => {
         setIsCheckInModalOpen(true);
@@ -97,9 +99,10 @@ export default function Dashboard() {
                             <DataCard subtitle={'Total weight tossed (lbs)'} value={0} prev={0} showPercent={false} session={session} editTitle={'Change Weight of Food Lost'} editSubtext={'Some cool subtext that makes sense.'} editElements={[
                                 <TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />
                             ]} />
+                            {(user?.role === 'admin') && (
                             <DataCard subtitle={'Total weight of food (lbs)'} value={0} prev={0} showPercent={false} session={session} editTitle={'Change Weight of Food'} editSubtext={'Some cool subtext that makes sense.'} editElements={[
                                 <TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />
-                            ]} />
+                            ]} />)}
                         </Stack>
 
                         {/* TODO: Implement Dynamic List */}

@@ -7,6 +7,7 @@ import { ChangeEvent, useState } from "react";
 import { GetServerSideProps } from 'next';
 import { useSession, getSession, GetSessionParams, signOut } from 'next-auth/react';
 import { Session } from 'next-auth';
+import { SessionUser } from '@/types';
 
 interface NavbarProps {
     toggleMode: () => void;
@@ -14,6 +15,7 @@ interface NavbarProps {
 
 export default function Navbar({ toggleMode }: NavbarProps) {
     const { data: session, status } = useSession();
+    const user = session?.user as SessionUser | undefined;
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const handleClose = () => {
         setAnchorEl(null);
@@ -42,9 +44,11 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                                 <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
                                     <AccountCircle fontSize='large' sx={{ color: '#FFF' }}/>
                                 </IconButton>
-                                <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple>
-                                    <TimelineIcon fontSize='large' sx={{ color: '#FFF' }}/>
-                                </IconButton>
+                                {(user?.role === 'admin') && (
+                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple>
+                                        <TimelineIcon fontSize='large' sx={{ color: '#FFF' }}/>
+                                    </IconButton>
+                                )}
                             </>
                         )}
                         <IconButton size='large' onClick={toggleMode}>
