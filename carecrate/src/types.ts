@@ -2,6 +2,7 @@
  * A list of custom types to be used throught the application
  */
 import { User } from 'next-auth';
+import { Session as NextAuthSession } from "next-auth";
 
 export type Family = {
   firstName: string;
