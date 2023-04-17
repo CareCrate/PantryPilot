@@ -3,6 +3,7 @@ import Modal from "@/components/dashboard/Modal";
 import {
   useDriveInWeightListener,
   useFirestore,
+  useReportGenerator,
   useVisitsListener,
 } from "@/service/hooks";
 import {
@@ -132,6 +133,7 @@ export default function Dashboard() {
   const firestore: any = useFirestore();
   const allVisits: any = useVisitsListener();
   const driveInWeight: Weight = useDriveInWeightListener();
+  const reportGenerator: any = useReportGenerator();
 
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isFoodWeightDisabled, setIsFoodWeightDisabled] = useState(true);
@@ -283,6 +285,12 @@ export default function Dashboard() {
 
     firestore.newSaveFamily(familyToSave);
     firestore.saveVisit(visitToSave);
+    reportGenerator.generate(
+      familyToSave.numInHousehold,
+      familyToSave.numChildren,
+      familyToSave.numElderly,
+      visitToSave.foodWeight
+    );
 
     setMyVisits((current) => [...current, visitToSave]);
 

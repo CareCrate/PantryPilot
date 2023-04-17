@@ -18,8 +18,10 @@ import {
   onSnapshot,
   addDoc,
   CollectionReference,
+  FieldValue,
+  increment,
 } from "firebase/firestore";
-import type { Family, Visit, Waste, Weight } from "../types";
+import type { Family, Visit, Weight } from "../types";
 import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "./localStorage";
 
@@ -29,7 +31,24 @@ const familySubCollection: string = "families";
 const visitsCollection: string = "visits";
 const wasteCollection: string = "waste";
 const driveInWeightCollection: string = "driveInWeight";
+const reportsCollection: string = "reports";
 const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0); //TODO: fix this time
+const months: string[] = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const date = new Date();
+const currentMonth: string = months[date.getMonth()] + " " + date.getFullYear();
 
 export const useFirestore = () => {
   const newSaveFamily = async (family: Family) => {
@@ -100,13 +119,29 @@ export const useFirestore = () => {
     update();
   };
 
-  const saveWaste = async (waste: Waste) => {
-    const docId: string = waste.timeOfWaste; // Waste is stored by its timestamp
-    const save = async () => {
-      await setDoc(doc(db, wasteCollection, docId), waste); //add waste to db
-    };
+  const saveWaste = async (waste: number) => {
+    const docRef = doc(db, reportsCollection, currentMonth);
+    const docSnap = await getDoc(docRef);
 
-    save();
+    // if not exist, save initial data. If does exist, increment data
+    if (!docSnap.exists()) {
+      await setDoc(docRef, {
+        totalHouseholds: 0,
+        numInHousehold: 0,
+        numChildren: 0,
+        numElderly: 0,
+        foodWeight: 0,
+        wasteWeight: waste,
+      });
+    } else {
+      const update = async () => {
+        await updateDoc(docRef, {
+          wasteWeight: increment(waste),
+        });
+      };
+
+      update();
+    }
   };
 
   const updateFoodWeight = async (weight: number) => {
@@ -122,28 +157,11 @@ export const useFirestore = () => {
     save();
   };
 
-  // Configure this for my use case. Do I need a listener, or just a get?
-  const getWaste = async (timestamp: string) => {
-    // const q: Query<DocumentData> = query(
-    //   collection(db, "waste"),
-    //   where("timeOfWaste", ">=", 1678479399162) // this can be any timestamp
-    // );
-    // const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(q);
-    // const dataArray: any = [];
-    // querySnapshot.forEach((doc) => {
-    //   // doc.data() is never undefined for query doc snapshots (comment is from Firebase docs)
-    //   dataArray.push(doc.data());
-    //   console.log(doc.data());
-    // });
-    // return dataArray;
-  };
-
   return {
     newSaveFamily,
     queryFamilies,
     saveVisit,
     saveWaste,
-    getWaste,
     updateFoodWeight,
   };
 };
@@ -208,4 +226,41 @@ export const useDriveInWeightListener = (): Weight => {
   }, []);
 
   return driveInWeight ? driveInWeight : { weight: 0 };
+};
+
+export const useReportGenerator = () => {
+  const generate = async (
+    numInHousehold: number,
+    numChildren: number,
+    numElderly: number,
+    foodWeight: number
+  ) => {
+    const docRef = doc(db, reportsCollection, currentMonth);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      await setDoc(docRef, {
+        totalHouseholds: 1,
+        numInHousehold,
+        numChildren,
+        numElderly,
+        foodWeight,
+        wasteWeight: 0,
+      });
+    } else {
+      const update = async () => {
+        await updateDoc(docRef, {
+          totalHouseholds: increment(1),
+          numInHousehold: increment(numInHousehold),
+          numChildren: increment(numChildren),
+          numElderly: increment(numElderly),
+          foodWeight: increment(foodWeight),
+        });
+      };
+
+      update();
+    }
+  };
+
+  return { generate };
 };
