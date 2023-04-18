@@ -16,51 +16,61 @@ import {
   Query,
   QuerySnapshot,
   onSnapshot,
+  addDoc,
+  CollectionReference,
 } from "firebase/firestore";
 import type { Family, Visit, Waste } from "../types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "./localStorage";
 
 // Collection names
-const familyCollection: string = "families";
+const familyCollection: string = "familyAccounts";
+const familySubCollection: string = "families";
 const visitsCollection: string = "visits";
 const wasteCollection: string = "waste";
-
-// Helper function for useCurrentVisits()
-const compareArrays = (a: any, b: any) => {
-  return JSON.stringify(a) === JSON.stringify(b);
-};
+const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0); //TODO: fix this time
 
 export const useFirestore = () => {
-  const [family, setFamily] = useState<{}>({});
+  const newSaveFamily = async (family: Family) => {
+    console.log("New Save Family");
+    const docId: string = family.phoneNumber;
+    const familyID: string = family.firstName + " " + family.lastName;
+    const docRef: DocumentReference<DocumentData> = doc(
+      db,
+      familyCollection,
+      docId,
+      familySubCollection,
+      familyID
+    );
 
-  const saveFamily = async (family: Family) => {
-    console.log("Trying to save family");
-    const docId: string = family.phoneNumber; // Families are stored by their phone numbers
     const save = async () => {
-      await setDoc(doc(db, familyCollection, docId), family); //add family document to db
+      await setDoc(docRef, family);
     };
 
     save();
   };
 
-  const getFamily = async (phoneNumber: string) => {
+  const queryFamilies = async (phoneNumber: string) => {
+    const docId: string = phoneNumber;
     const docRef: DocumentReference<DocumentData> = doc(
       db,
       familyCollection,
-      phoneNumber
+      docId
     );
-    const docSnap: DocumentSnapshot<DocumentData> = await getDoc(docRef);
+    const colRef: CollectionReference<DocumentData> = collection(
+      docRef,
+      familySubCollection
+    );
 
-    if (docSnap.exists()) {
-      // if no data exists, user should enter family data manually on UI.
-      setFamily(docSnap.data());
-    } else {
-      setFamily({});
-    }
+    const q = query(colRef);
+    let families: any = [];
 
-    console.log(family);
-    return family;
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      families.push(doc.data());
+    });
+
+    return families;
   };
 
   const saveVisit = async (visit: Visit) => {
@@ -70,9 +80,17 @@ export const useFirestore = () => {
       await setDoc(doc(db, visitsCollection, docId), visit); //add visit to db
     };
 
+    const docRef: DocumentReference<DocumentData> = doc(
+      db,
+      familyCollection,
+      visit.phoneNumber,
+      familySubCollection,
+      visit.firstName + " " + visit.lastName
+    );
+
     // update the family's array of visits each time they check in.
     const update = async () => {
-      await updateDoc(doc(db, "families", visit.phoneNumber), {
+      await updateDoc(docRef, {
         visits: arrayUnion(docId),
       });
     };
@@ -106,41 +124,44 @@ export const useFirestore = () => {
     // return dataArray;
   };
 
-  return { saveFamily, getFamily, saveVisit, saveWaste, getWaste };
+  return {
+    newSaveFamily,
+    queryFamilies,
+    saveVisit,
+    saveWaste,
+    getWaste,
+  };
 };
 
 export const useVisitsListener = () => {
   const [currentVisits, setCurrentVisits] = useState<[]>([]);
   // const [visits, setVisits] = useLocalStorage('the key', [values]);
-  const [tempVisitDocs, setTempVisitDocs] = useState<[]>([]);
+  const effectHasRun = useRef(false);
 
   // This listener should only be created on mount, not for every render
   useEffect(() => {
-    // Query visits
-    const q: Query<DocumentData> = query(
-      collection(db, "visits"),
-      where("id", ">=", 1678580485135) // This should either be the timestamp of when that day started, or when the user logged in
-    );
+    if (!effectHasRun.current) {
+      // Query visits
+      const q: Query<DocumentData> = query(
+        collection(db, "visits"),
+        where("id", ">=", startOfDay) // This should either be the timestamp of when that day started, or when the user logged in
+      );
 
-    // Listen to Query
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const visitDocs: any = [];
-      querySnapshot.forEach((doc) => {
-        visitDocs.push(doc.data());
-        console.log("Snapshot");
+      // Listen to Query
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const visitDocs: any = [];
+        querySnapshot.forEach((doc) => {
+          visitDocs.push(doc.data());
+        });
+
+        setCurrentVisits(visitDocs);
       });
 
-      // Only set state when visitDocs changes
-      if (!compareArrays(visitDocs, tempVisitDocs)) {
-        console.log("Compared visits arrays");
-        setTempVisitDocs(visitDocs);
-      }
-    });
+      return () => {
+        effectHasRun.current = true;
+      };
+    }
   }, []);
-
-  useEffect(() => {
-    setCurrentVisits(tempVisitDocs);
-  }, [tempVisitDocs]);
 
   return currentVisits;
 };
