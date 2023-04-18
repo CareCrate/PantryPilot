@@ -10,7 +10,7 @@ export function isWorkspaceUserInSession(user: any): user is WorkspaceUser {
 }
 
 export async function updateSession(user: Partial<WorkspaceUser>) {
-  const response = await fetch('/api/auth/update-session', {
+  const response = await fetch('http://localhost:3000/api/auth/update-session', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'

@@ -45,7 +45,9 @@ const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units, show
                 <MenuItem onClick={() => setIsModalOpen(true)}>Edit</MenuItem>
                 {/* <MenuItem onClick={handleClose}>View Data</MenuItem> */}
             </Menu>
-            {(editTitle !== '' || editSubtext !== '' || editElements.length != 0) && <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title={editTitle} content={editSubtext} submitText='Submit' inputFields={editElements}/>}
+            {(editTitle !== '' || editSubtext !== '' || editElements.length != 0) && <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title={editTitle} content={editSubtext} submitText='Submit' inputFields={editElements} onSubmit={function (): void {
+                throw new Error("Function not implemented.");
+            } } onCancel={() => setIsModalOpen(false)}/>}
         </Card>
     )
 }
