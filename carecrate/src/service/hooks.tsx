@@ -1,26 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "../firebase/initFirebase";
-import {
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  arrayUnion,
-  query,
-  collection,
-  getDocs,
-  where,
-  DocumentReference,
-  DocumentData,
-  DocumentSnapshot,
-  Query,
-  QuerySnapshot,
-  onSnapshot,
-  addDoc,
-  CollectionReference,
-  FieldValue,
-  increment,
-} from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, arrayUnion, query, collection, getDocs, where, DocumentReference, DocumentData, DocumentSnapshot, Query, QuerySnapshot, onSnapshot, addDoc, CollectionReference, FieldValue, increment } from "firebase/firestore";
 import type { Family, Visit, Weight } from "../types";
 import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "./localStorage";
@@ -33,20 +13,7 @@ const wasteCollection: string = "waste";
 const driveInWeightCollection: string = "driveInWeight";
 const reportsCollection: string = "reports";
 const startOfDay: number = new Date().setUTCHours(0, 0, 0, 0); //TODO: fix this time
-const months: string[] = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+const months: string[] = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const date = new Date();
 const currentMonth: string = months[date.getMonth()] + " " + date.getFullYear();
 
@@ -55,13 +22,7 @@ export const useFirestore = () => {
     console.log("New Save Family");
     const docId: string = family.phoneNumber;
     const familyID: string = family.firstName + " " + family.lastName;
-    const docRef: DocumentReference<DocumentData> = doc(
-      db,
-      familyCollection,
-      docId,
-      familySubCollection,
-      familyID
-    );
+    const docRef: DocumentReference<DocumentData> = doc(db, familyCollection, docId, familySubCollection, familyID);
 
     const save = async () => {
       await setDoc(docRef, family);
@@ -72,21 +33,14 @@ export const useFirestore = () => {
 
   const queryFamilies = async (phoneNumber: string) => {
     const docId: string = phoneNumber;
-    const docRef: DocumentReference<DocumentData> = doc(
-      db,
-      familyCollection,
-      docId
-    );
-    const colRef: CollectionReference<DocumentData> = collection(
-      docRef,
-      familySubCollection
-    );
+    const docRef: DocumentReference<DocumentData> = doc(db, familyCollection, docId);
+    const colRef: CollectionReference<DocumentData> = collection(docRef, familySubCollection);
 
     const q = query(colRef);
     let families: any = [];
 
     const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach(doc => {
       families.push(doc.data());
     });
 
@@ -100,18 +54,12 @@ export const useFirestore = () => {
       await setDoc(doc(db, visitsCollection, docId), visit); //add visit to db
     };
 
-    const docRef: DocumentReference<DocumentData> = doc(
-      db,
-      familyCollection,
-      visit.phoneNumber,
-      familySubCollection,
-      visit.firstName + " " + visit.lastName
-    );
+    const docRef: DocumentReference<DocumentData> = doc(db, familyCollection, visit.phoneNumber, familySubCollection, visit.firstName + " " + visit.lastName);
 
     // update the family's array of visits each time they check in.
     const update = async () => {
       await updateDoc(docRef, {
-        visits: arrayUnion(docId),
+        visits: arrayUnion(docId)
       });
     };
 
@@ -131,12 +79,12 @@ export const useFirestore = () => {
         numChildren: 0,
         numElderly: 0,
         foodWeight: 0,
-        wasteWeight: waste,
+        wasteWeight: waste
       });
     } else {
       const update = async () => {
         await updateDoc(docRef, {
-          wasteWeight: increment(waste),
+          wasteWeight: increment(waste)
         });
       };
 
@@ -147,7 +95,7 @@ export const useFirestore = () => {
   const updateFoodWeight = async (weight: number) => {
     const docId: string = "weight";
     const weightDoc = {
-      weight,
+      weight
     };
 
     const save = async () => {
@@ -162,7 +110,7 @@ export const useFirestore = () => {
     queryFamilies,
     saveVisit,
     saveWaste,
-    updateFoodWeight,
+    updateFoodWeight
   };
 };
 
@@ -181,13 +129,13 @@ export const useVisitsListener = () => {
       );
 
       // Listen to Query
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const unsubscribe = onSnapshot(q, querySnapshot => {
         const visitDocs: any = [];
-        querySnapshot.forEach((doc) => {
+        querySnapshot.forEach(doc => {
           visitDocs.push(doc.data());
         });
 
-        setCurrentVisits(visitDocs);
+        setCurrentVisits(visitDocs.reverse());
       });
 
       return () => {
@@ -206,18 +154,15 @@ export const useDriveInWeightListener = (): Weight => {
 
   useEffect(() => {
     if (!effectHasRun.current) {
-      const unsubscribe = onSnapshot(
-        doc(db, driveInWeightCollection, "weight"),
-        (doc) => {
-          console.log(`Data`);
-          console.log(doc.data());
-          if (doc.data()) {
-            weight = doc.data();
-          }
-
-          setDriveInWeight(weight);
+      const unsubscribe = onSnapshot(doc(db, driveInWeightCollection, "weight"), doc => {
+        console.log(`Data`);
+        console.log(doc.data());
+        if (doc.data()) {
+          weight = doc.data();
         }
-      );
+
+        setDriveInWeight(weight);
+      });
 
       return () => {
         effectHasRun.current = true;
@@ -229,12 +174,7 @@ export const useDriveInWeightListener = (): Weight => {
 };
 
 export const useReportGenerator = () => {
-  const generate = async (
-    numInHousehold: number,
-    numChildren: number,
-    numElderly: number,
-    foodWeight: number
-  ) => {
+  const generate = async (numInHousehold: number, numChildren: number, numElderly: number, foodWeight: number) => {
     const docRef = doc(db, reportsCollection, currentMonth);
     const docSnap = await getDoc(docRef);
 
@@ -245,7 +185,7 @@ export const useReportGenerator = () => {
         numChildren,
         numElderly,
         foodWeight,
-        wasteWeight: 0,
+        wasteWeight: 0
       });
     } else {
       const update = async () => {
@@ -254,7 +194,7 @@ export const useReportGenerator = () => {
           numInHousehold: increment(numInHousehold),
           numChildren: increment(numChildren),
           numElderly: increment(numElderly),
-          foodWeight: increment(foodWeight),
+          foodWeight: increment(foodWeight)
         });
       };
 

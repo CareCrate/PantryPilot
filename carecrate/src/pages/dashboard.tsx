@@ -145,7 +145,7 @@ export default function Dashboard() {
 
   const handleAddCheckinClick = () => {
     setIsCheckInModalOpen(true);
-    firestore.updateFoodWeight(12);
+    // firestore.updateFoodWeight(12);
   };
 
   const handleCheckInTypeChange = (event: SelectChangeEvent) => {
@@ -354,17 +354,17 @@ export default function Dashboard() {
           <Grid item container direction="column" spacing={0} sx={{ flexDirection: "column" }}>
             {/* TODO: Implement Cards. */}
             <Stack direction="row" spacing={3}>
-              <DataCard subtitle={"Total checkins today"} value={100} prev={120} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} />
-              <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} />
-              <DataCard subtitle={"Total household today"} value={3000} prev={2700} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} />
+              <DataCard subtitle={"Families served today"} value={allVisits.length} prev={120} showPercent={false} session={session} editTitle={""} editSubtext={""} editElements={[]} />
+              {/* <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} /> */}
+              {/* <DataCard subtitle={"Total household today"} value={3000} prev={2700} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} /> */}
               <DataCard
-                subtitle={"Total weight tossed (lbs)"}
-                value={0}
+                subtitle={"Weight of food discarded today (lbs)"}
+                value={10}
                 prev={0}
                 showPercent={false}
                 session={session}
-                editTitle={"Change Weight of Food Lost"}
-                editSubtext={"Some cool subtext that makes sense."}
+                editTitle={"Change Weight (lbs)"}
+                editSubtext={"Please enter the weight of any food you have discarded."}
                 editElements={[
                   <TextField
                     autoFocus
@@ -383,13 +383,13 @@ export default function Dashboard() {
               />
               {user?.role === "admin" && (
                 <DataCard
-                  subtitle={"Total weight of food (lbs)"}
-                  value={0}
+                  subtitle={"Drive-in food weight (lbs)"}
+                  value={driveInWeight.weight}
                   prev={0}
                   showPercent={false}
                   session={session}
-                  editTitle={"Change Weight of Food"}
-                  editSubtext={"This is the weight of the food that all drive-in families receive."}
+                  editTitle={"Change Weight (lbs)"}
+                  editSubtext={"Please enter the weight of food that drive-in families will receive."}
                   editElements={[
                     <TextField
                       autoFocus
@@ -412,7 +412,7 @@ export default function Dashboard() {
             {/* TODO: Implement Dynamic List */}
             <Stack direction="row" spacing={0} sx={{ marginTop: "5em" }}>
               <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                Today's Checkins
+                Today's Families
               </Typography>
               <Button variant="contained" disableElevation disableRipple disableTouchRipple sx={{ textTransform: "none" }} onClick={handleAddCheckinClick}>
                 + Add Family
