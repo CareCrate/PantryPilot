@@ -1,6 +1,8 @@
 /**
  * A list of custom types to be used throught the application
  */
+import { User } from 'next-auth';
+import { Session as NextAuthSession } from "next-auth";
 
 export type Family = {
   firstName: string;
@@ -35,3 +37,23 @@ export type Volunteer = {
 export type Weight = {
   weight: number;
 };
+
+export interface WorkspaceUser extends User {
+  id: string;
+  workspaceId: number;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export interface WorkspaceCredentials {
+  workspace: string;
+  email: string;
+  password: string;
+}
+
+export interface SessionUser extends User {
+  id: string;
+  workspaceId: string;
+  role: string;
+}
