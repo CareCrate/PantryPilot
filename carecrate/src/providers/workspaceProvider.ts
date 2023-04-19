@@ -1,8 +1,9 @@
 import { CredentialsConfig } from 'next-auth/providers';
 import { RequestInternal } from 'next-auth';
 import { db } from '../firebase/initFirebase';
-import { collection , query, where, getDocs, doc } from 'firebase/firestore';
+import { collection , query, where, getDocs, doc, onSnapshot } from 'firebase/firestore';
 import { WorkspaceUser, WorkspaceCredentials } from '@/types';
+import { saveSession } from '@/service/utils';
 
 const WorkspaceProvider: CredentialsConfig = {
     id: "workspace",
@@ -51,6 +52,18 @@ async function validateWorkspaceCredentials(credentials: WorkspaceCredentials): 
             email: userData.email,
             role: userData.role
         }
+
+        const userRef = doc(db, 'workspaces', workspaceId, 'users', userId);
+        onSnapshot(userRef, (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const updatedUserData = docSnapshot.data();
+                const updatedUser: WorkspaceUser = {
+                    ...user,
+                    role: updatedUserData.role
+                };
+                saveSession(updatedUser);
+            }
+        });
         console.log("Fetched user from Firestore: ", user);
         return user;
     } catch (error) {

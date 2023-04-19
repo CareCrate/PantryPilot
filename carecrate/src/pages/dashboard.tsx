@@ -1,28 +1,7 @@
 import DataCard from "@/components/dashboard/DataCard";
 import Modal from "@/components/dashboard/Modal";
-import {
-  useDriveInWeightListener,
-  useFirestore,
-  useReportGenerator,
-  useVisitsListener,
-} from "@/service/hooks";
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  SelectChangeEvent,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { useDriveInWeightListener, useFirestore, useReportGenerator, useVisitsListener } from "@/service/hooks";
+import { Box, Button, Checkbox, FormControl, FormControlLabel, FormGroup, Grid, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
 import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -37,23 +16,23 @@ const fields: GridColDef[] = [
   {
     field: "firstName",
     headerName: "First Name",
-    width: 150,
+    width: 150
   },
   {
     field: "lastName",
     headerName: "Last Name",
-    width: 150,
+    width: 150
   },
   {
     field: "checkInType",
     headerName: "Method of Checkin",
-    width: 150,
+    width: 150
   },
   {
     field: "timeOfVisit",
     headerName: "Timestamp",
-    width: 300,
-  },
+    width: 300
+  }
 ];
 
 const allData: GridRowsProp = [
@@ -62,36 +41,36 @@ const allData: GridRowsProp = [
     firstName: "Bob",
     lastName: "Doe",
     checkInType: "Doordash",
-    timeOfVisit: "12:30 PM",
+    timeOfVisit: "12:30 PM"
   },
   {
     id: 2,
     firstName: "Mary",
     lastName: "Doen",
     checkInType: "On-Site",
-    timeOfVisit: "1:15 PM",
+    timeOfVisit: "1:15 PM"
   },
   {
     id: 3,
     firstName: "Amy",
     lastName: "Worthington",
     checkInType: "Doordash",
-    timeOfVisit: "3:45 PM",
+    timeOfVisit: "3:45 PM"
   },
   {
     id: 4,
     firstName: "Dylan",
     lastName: "Nye",
     checkInType: "On-Site",
-    timeOfVisit: "9:20 AM",
+    timeOfVisit: "9:20 AM"
   },
   {
     id: 5,
     firstName: "Josh",
     lastName: "SpringStein",
     checkInType: "Doordash",
-    timeOfVisit: "7:15 AM",
-  },
+    timeOfVisit: "7:15 AM"
+  }
 ];
 
 const dummyData: any = [
@@ -100,36 +79,36 @@ const dummyData: any = [
     firstName: "Bob",
     lastName: "Doe",
     checkInType: "Doordash",
-    timeOfVisit: "12:30 PM",
+    timeOfVisit: "12:30 PM"
   },
   {
     id: 2,
     firstName: "Mary",
     lastName: "Doen",
     checkInType: "On-Site",
-    timeOfVisit: "1:15 PM",
+    timeOfVisit: "1:15 PM"
   },
   {
     id: 3,
     firstName: "Amy",
     lastName: "Worthington",
     checkInType: "Doordash",
-    timeOfVisit: "3:45 PM",
+    timeOfVisit: "3:45 PM"
   },
   {
     id: 4,
     firstName: "Dylan",
     lastName: "Nye",
     checkInType: "On-Site",
-    timeOfVisit: "9:20 AM",
+    timeOfVisit: "9:20 AM"
   },
   {
     id: 5,
     firstName: "Josh",
     lastName: "SpringStein",
     checkInType: "Doordash",
-    timeOfVisit: "7:15 AM",
-  },
+    timeOfVisit: "7:15 AM"
+  }
 ];
 
 export default function Dashboard() {
@@ -161,6 +140,8 @@ export default function Dashboard() {
   const [selectedFamilyIndex, setSelectedFamilyIndex] = useState(-1);
   const [hasAdditionalFamilies, setHasAdditionalFamilies] = useState(false);
   const [queriedFamilies, setQueriedFamilies] = useState<Family[]>([]);
+  const [typingDriveInWeight, setTypingDriveInWeight] = useState(0);
+  const [wasteWeight, setWasteWeight] = useState(0);
 
   const handleAddCheckinClick = () => {
     setIsCheckInModalOpen(true);
@@ -173,21 +154,14 @@ export default function Dashboard() {
 
   const handleSelectedFamilyChange = (index: number) => {
     setSelectedFamilyIndex(index);
-    setSelectedFamily(
-      queriedFamilies[index].firstName + " " + queriedFamilies[index].lastName
-    );
+    setSelectedFamily(queriedFamilies[index].firstName + " " + queriedFamilies[index].lastName);
   };
 
   const handleTextBoxChange = (e: any, textBoxToUpdate: string) => {
     const numRegex = /^[0-9\b]+$/;
     const letterRegex = /^[a-zA-Z\-b]+$/;
     const emailRegex = /^[a-zA-Z0-9.@\-]+$/;
-    if (
-      textBoxToUpdate !== "email" &&
-      textBoxToUpdate !== "firstName" &&
-      textBoxToUpdate !== "lastName" &&
-      (e.target.value === "" || numRegex.test(e.target.value))
-    ) {
+    if (textBoxToUpdate !== "email" && textBoxToUpdate !== "firstName" && textBoxToUpdate !== "lastName" && (e.target.value === "" || numRegex.test(e.target.value))) {
       switch (textBoxToUpdate) {
         case "phoneNumber": {
           setPhoneNumber(e.target.value);
@@ -209,11 +183,16 @@ export default function Dashboard() {
           setNumElderly(e.target.value);
           break;
         }
+        case "typingDriveInWeight": {
+          setTypingDriveInWeight(e.target.value);
+          break;
+        }
+        case "wasteWeight": {
+          setWasteWeight(e.target.value);
+          break;
+        }
       }
-    } else if (
-      textBoxToUpdate !== "email" &&
-      (e.target.value === "" || letterRegex.test(e.target.value))
-    ) {
+    } else if (textBoxToUpdate !== "email" && (e.target.value === "" || letterRegex.test(e.target.value))) {
       switch (textBoxToUpdate) {
         case "firstName": {
           setFirstName(e.target.value);
@@ -224,18 +203,13 @@ export default function Dashboard() {
           break;
         }
       }
-    } else if (
-      textBoxToUpdate === "email" &&
-      (e.target.value === "" || emailRegex.test(e.target.value))
-    ) {
+    } else if (textBoxToUpdate === "email" && (e.target.value === "" || emailRegex.test(e.target.value))) {
       setEmail(e.target.value);
     }
   };
 
   const handleCheckBoxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    isAppendingFamily
-      ? setIsAppendingFamily(false)
-      : setIsAppendingFamily(true);
+    isAppendingFamily ? setIsAppendingFamily(false) : setIsAppendingFamily(true);
     setChecked(e.target.checked);
   };
 
@@ -277,7 +251,7 @@ export default function Dashboard() {
       numInHousehold,
       numChildren,
       numElderly,
-      visits: [],
+      visits: []
     };
     let visitToSave: Visit = {
       id: date.getTime(),
@@ -286,19 +260,14 @@ export default function Dashboard() {
       lastName,
       foodWeight: parseInt(foodWeight),
       checkInType,
-      timeOfVisit: date.toLocaleTimeString(),
+      timeOfVisit: date.toLocaleTimeString()
     };
 
     firestore.newSaveFamily(familyToSave);
     firestore.saveVisit(visitToSave);
-    reportGenerator.generate(
-      familyToSave.numInHousehold,
-      familyToSave.numChildren,
-      familyToSave.numElderly,
-      visitToSave.foodWeight
-    );
+    reportGenerator.generate(familyToSave.numInHousehold, familyToSave.numChildren, familyToSave.numElderly, visitToSave.foodWeight);
 
-    setMyVisits((current) => [...current, visitToSave]);
+    setMyVisits(current => [...current, visitToSave]);
 
     resetCheckInModal();
   };
@@ -379,49 +348,15 @@ export default function Dashboard() {
           position: "relative",
           margin: "auto",
           maxWidth: "1920px",
-          padding: "2em",
-        }}
-      >
+          padding: "2em"
+        }}>
         <Grid container spacing={0} direction="column" sx={{ width: "100%" }}>
-          <Grid
-            item
-            container
-            direction="column"
-            spacing={0}
-            sx={{ flexDirection: "column" }}
-          >
+          <Grid item container direction="column" spacing={0} sx={{ flexDirection: "column" }}>
             {/* TODO: Implement Cards. */}
             <Stack direction="row" spacing={3}>
-              <DataCard
-                subtitle={"Total checkins today"}
-                value={100}
-                prev={120}
-                showPercent={true}
-                session={session}
-                editTitle={""}
-                editSubtext={""}
-                editElements={[]}
-              />
-              <DataCard
-                subtitle={"Total volunteers today"}
-                value={4}
-                prev={20}
-                showPercent={true}
-                session={session}
-                editTitle={""}
-                editSubtext={""}
-                editElements={[]}
-              />
-              <DataCard
-                subtitle={"Total household today"}
-                value={3000}
-                prev={2700}
-                showPercent={true}
-                session={session}
-                editTitle={""}
-                editSubtext={""}
-                editElements={[]}
-              />
+              <DataCard subtitle={"Total checkins today"} value={100} prev={120} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} />
+              <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} />
+              <DataCard subtitle={"Total household today"} value={3000} prev={2700} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} />
               <DataCard
                 subtitle={"Total weight tossed (lbs)"}
                 value={0}
@@ -439,7 +374,11 @@ export default function Dashboard() {
                     type="weight"
                     fullWidth
                     variant="standard"
-                  />,
+                    onChange={e => {
+                      handleTextBoxChange(e, "wasteWeight");
+                    }}
+                    value={wasteWeight}
+                  />
                 ]}
               />
               {user?.role === "admin" && (
@@ -450,17 +389,21 @@ export default function Dashboard() {
                   showPercent={false}
                   session={session}
                   editTitle={"Change Weight of Food"}
-                  editSubtext={"Some cool subtext that makes sense."}
+                  editSubtext={"This is the weight of the food that all drive-in families receive."}
                   editElements={[
                     <TextField
                       autoFocus
                       margin="dense"
                       id="weight"
                       label="Weight"
-                      type="weight"
+                      type="text"
                       fullWidth
                       variant="standard"
-                    />,
+                      onChange={e => {
+                        handleTextBoxChange(e, "typingDriveInWeight");
+                      }}
+                      value={typingDriveInWeight}
+                    />
                   ]}
                 />
               )}
@@ -471,23 +414,11 @@ export default function Dashboard() {
               <Typography variant="h6" sx={{ flexGrow: 1 }}>
                 Today's Checkins
               </Typography>
-              <Button
-                variant="contained"
-                disableElevation
-                disableRipple
-                disableTouchRipple
-                sx={{ textTransform: "none" }}
-                onClick={handleAddCheckinClick}
-              >
+              <Button variant="contained" disableElevation disableRipple disableTouchRipple sx={{ textTransform: "none" }} onClick={handleAddCheckinClick}>
                 + Add Family
               </Button>
             </Stack>
-            <RadioGroup
-              row
-              aria-labelledby="demo-row-radio-buttons-group-label"
-              name="row-radio-buttons-group"
-              defaultValue="mine"
-            >
+            <RadioGroup row aria-labelledby="demo-row-radio-buttons-group-label" name="row-radio-buttons-group" defaultValue="mine">
               <FormControlLabel
                 value="mine"
                 control={
@@ -513,15 +444,8 @@ export default function Dashboard() {
                 label="All"
               />
             </RadioGroup>
-            <Paper
-              component="div"
-              elevation={3}
-              sx={{ height: 500, width: "100%", marginTop: "2em" }}
-            >
-              <DataGrid
-                rows={isShowMyVisits ? myVisits : allVisits}
-                columns={fields}
-              />
+            <Paper component="div" elevation={3} sx={{ height: 500, width: "100%", marginTop: "2em" }}>
+              <DataGrid rows={isShowMyVisits ? myVisits : allVisits} columns={fields} />
             </Paper>
           </Grid>
         </Grid>
@@ -543,25 +467,16 @@ export default function Dashboard() {
               fullWidth
               inputProps={{ maxLength: 10 }}
               variant="standard"
-              onChange={(e) => {
+              onChange={e => {
                 handleTextBoxChange(e, "phoneNumber");
               }}
               value={phoneNumber}
             />,
             <FormGroup>
               {" "}
-              <FormControlLabel
-                sx={{ display: isFamilyFound ? "block" : "none" }}
-                control={
-                  <Checkbox checked={checked} onChange={handleCheckBoxChange} />
-                }
-                label="Add New Family to Existing Phone Number"
-              />
+              <FormControlLabel sx={{ display: isFamilyFound ? "block" : "none" }} control={<Checkbox checked={checked} onChange={handleCheckBoxChange} />} label="Add New Family to Existing Phone Number" />
             </FormGroup>,
-            <FormControl
-              fullWidth
-              sx={{ display: hasAdditionalFamilies ? "inline-flex" : "none" }}
-            >
+            <FormControl fullWidth sx={{ display: hasAdditionalFamilies ? "inline-flex" : "none" }}>
               <InputLabel id="select-family">Select Family</InputLabel>
               <Select
                 labelId="select-family"
@@ -572,11 +487,7 @@ export default function Dashboard() {
               >
                 {queriedFamilies.map((family: any, index: number) => {
                   return (
-                    <MenuItem
-                      key={index}
-                      value={family.firstName + " " + family.lastName}
-                      onClick={() => handleSelectedFamilyChange(index)}
-                    >
+                    <MenuItem key={index} value={family.firstName + " " + family.lastName} onClick={() => handleSelectedFamilyChange(index)}>
                       {family.firstName + " " + family.lastName}
                     </MenuItem>
                   );
@@ -585,13 +496,7 @@ export default function Dashboard() {
             </FormControl>,
             <FormControl fullWidth>
               <InputLabel id="check-in-type">Check In Type</InputLabel>
-              <Select
-                labelId="check-in-type"
-                id="check-in-type"
-                value={checkInType}
-                label="Check in Type"
-                onChange={handleCheckInTypeChange}
-              >
+              <Select labelId="check-in-type" id="check-in-type" value={checkInType} label="Check in Type" onChange={handleCheckInTypeChange}>
                 <MenuItem value={"Drive In"}>Drive In</MenuItem>
                 <MenuItem value={"Walk In"}>Walk In</MenuItem>
                 <MenuItem value={"DoorDash"}>DoorDash</MenuItem>
@@ -606,7 +511,7 @@ export default function Dashboard() {
               type="weight"
               fullWidth
               variant="standard"
-              onChange={(e) => {
+              onChange={e => {
                 handleTextBoxChange(e, "foodWeight");
               }}
               value={foodWeight || ""}
@@ -621,7 +526,7 @@ export default function Dashboard() {
               type="first-name"
               fullWidth
               variant="standard"
-              onChange={(e) => {
+              onChange={e => {
                 handleTextBoxChange(e, "firstName");
               }}
               value={firstName}
@@ -635,7 +540,7 @@ export default function Dashboard() {
               type="last-name"
               fullWidth
               variant="standard"
-              onChange={(e) => {
+              onChange={e => {
                 handleTextBoxChange(e, "lastName");
               }}
               value={lastName}
@@ -648,7 +553,7 @@ export default function Dashboard() {
               type="email"
               fullWidth
               variant="standard"
-              onChange={(e) => {
+              onChange={e => {
                 handleTextBoxChange(e, "email");
               }}
               value={email}
@@ -661,7 +566,7 @@ export default function Dashboard() {
               type="number-in-household"
               fullWidth
               variant="standard"
-              onChange={(e) => {
+              onChange={e => {
                 handleTextBoxChange(e, "numInHousehold");
               }}
               value={numInHousehold}
@@ -674,7 +579,7 @@ export default function Dashboard() {
               type="number-under-18"
               fullWidth
               variant="standard"
-              onChange={(e) => {
+              onChange={e => {
                 handleTextBoxChange(e, "numChildren");
               }}
               value={numChildren}
@@ -687,11 +592,11 @@ export default function Dashboard() {
               type="number-over-60"
               fullWidth
               variant="standard"
-              onChange={(e) => {
+              onChange={e => {
                 handleTextBoxChange(e, "numElderly");
               }}
               value={numElderly}
-            />,
+            />
           ]}
         />
       </Box>
