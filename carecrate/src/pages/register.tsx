@@ -18,8 +18,6 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Make a request to your backend to create a new workspace and admin user
     try {
       const response = await fetch('/api/register', {
         method: 'POST',
@@ -31,7 +29,7 @@ export default function Signup() {
 
       if (response.ok) {
         // TODO: Auto-login after workspace creation.
-        router.push('/login');
+        router.push('/dashboard');
       } else {
         // TODO: Handle Error.
       }
