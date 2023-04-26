@@ -14,7 +14,7 @@ interface NavbarProps {
 };
 
 export default function Navbar({ toggleMode }: NavbarProps) {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const user = session?.user as SessionUser | undefined;
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const handleClose = () => {
@@ -44,6 +44,7 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                                 <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
                                     <AccountCircle fontSize='large' sx={{ color: '#FFF' }}/>
                                 </IconButton>
+                                {console.log("USER ROLE: ", user?.role)}
                                 {(user?.role === 'admin') && (
                                     <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple>
                                         <TimelineIcon fontSize='large' sx={{ color: '#FFF' }}/>
@@ -74,10 +75,10 @@ export default function Navbar({ toggleMode }: NavbarProps) {
     )
 }
 
-export const getServerSideProps: GetServerSideProps<{ session: Session | null }> = async (context: GetSessionParams | undefined) => {
-    return {
-      props: {
-        session: await getSession(context)
-      }
-    }
-}
+// export const getServerSideProps: GetServerSideProps<{ session: Session | null }> = async (context: GetSessionParams | undefined) => {
+//     return {
+//       props: {
+//         session: await getSession(context)
+//       }
+//     }
+// }
