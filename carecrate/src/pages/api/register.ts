@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const workspaceDoc = await addDoc(workspaceRef, { name: workspace });
         // New Admin User
         const usersRef = collection(workspaceDoc, 'users');
-        const userDoc = await addDoc(usersRef, { workspaceId: workspaceDoc.id, email, name, role: 'admin', password });
+        const userDoc = await addDoc(usersRef, { email, name, password, role: 'admin' });
         res.status(201).json({ message: 'Workspace and admin user created successfully' });
         console.log('Workspace and admin user created successfully');
     } catch(error) {
