@@ -15,7 +15,9 @@ const WorkspaceProvider: CredentialsConfig = {
         workspace: { label: "Workspace", type: "text", placeholder: "myworkspace" },
     },
     authorize: async (credentials: Record<string, string> | undefined, req: Pick<RequestInternal, "body" | "query" | "headers" | "method">) => {
+        console.log("Authorize function called with credentials: ", credentials);
         if (!credentials) {
+            console.log("Credentials are not provided");
             return null;
         }
         const workspaceCredentials: WorkspaceCredentials = {
@@ -24,9 +26,11 @@ const WorkspaceProvider: CredentialsConfig = {
             password: credentials.password
         };
         const user = await validateWorkspaceCredentials(workspaceCredentials);
+        console.log("User in authorize: ", user);
         if (user) {
             return { ...user, account: { workspaceId: user.workspaceId }};
         }
+        console.log("User is not valid");
         return Promise.resolve(null);
     }
 };
@@ -47,23 +51,11 @@ async function validateWorkspaceCredentials(credentials: WorkspaceCredentials): 
         const userId = userSnapshot.docs[0].id;
         const user: WorkspaceUser = {
             id: userId,
-            workspaceId: parseInt(workspaceId),
+            workspaceId: workspaceId,
             name: userData.name,
             email: userData.email,
             role: userData.role
         }
-
-        // const userRef = doc(db, 'workspaces', workspaceId, 'users', userId);
-        // onSnapshot(userRef, (docSnapshot) => {
-        //     if (docSnapshot.exists()) {
-        //         const updatedUserData = docSnapshot.data();
-        //         const updatedUser: WorkspaceUser = {
-        //             ...user,
-        //             role: updatedUserData.role
-        //         };
-        //         saveSession(updatedUser);
-        //     }
-        // });
         console.log("Fetched user from Firestore: ", user);
         return user;
     } catch (error) {
