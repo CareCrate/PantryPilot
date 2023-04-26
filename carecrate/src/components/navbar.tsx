@@ -1,5 +1,6 @@
 import { useTheme } from '@mui/material/styles';
 import { AppBar, Box, Button, Toolbar, Typography, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch } from "@mui/material";
+import Modal from "@/components/dashboard/Modal";
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Brightness6Icon from '@mui/icons-material/Brightness6';
 import TimelineIcon from '@mui/icons-material/Timeline';
@@ -28,6 +29,17 @@ export default function Navbar({ toggleMode }: NavbarProps) {
         setAnchorEl(null);
     };
 
+    const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
+    const handleReportsClick = () => {
+        setIsReportsModalOpen(true);
+    };
+    const resetReportsModal = () => {
+        setIsReportsModalOpen(false);
+    };
+    const saveReports = () => {
+        resetReportsModal();
+    };
+
     return (
         <AppBar position='static' elevation={0} sx={{ background: '#C2AFF0' }}>
             <Toolbar>
@@ -42,12 +54,12 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                         {session && (
                             <>
                                 <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
-                                    <AccountCircle fontSize='large' sx={{ color: '#FFF' }}/>
+                                    <AccountCircle fontSize='large' sx={{ color: '#FFF' }} />
                                 </IconButton>
                                 {console.log("USER ROLE: ", user?.role)}
                                 {(user?.role === 'admin') && (
-                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple>
-                                        <TimelineIcon fontSize='large' sx={{ color: '#FFF' }}/>
+                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleReportsClick}>
+                                        <TimelineIcon fontSize='large' sx={{ color: '#FFF' }} />
                                     </IconButton>
                                 )}
                             </>
@@ -69,16 +81,18 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                             <MenuItem onClick={handleSignout}>Logout</MenuItem>
                         </Menu>
                     )}
+                    <Modal
+                        open={isReportsModalOpen}
+                        onClose={() => setIsReportsModalOpen(false)}
+                        title="Reports"
+                        content="Amazing reports text that goes here."
+                        submitText="Submit"
+                        inputFields={[]}
+                        onSubmit={saveReports}
+                        onCancel={resetReportsModal}
+                    />
                 </Box>
             </Toolbar>
         </AppBar>
     )
 }
-
-// export const getServerSideProps: GetServerSideProps<{ session: Session | null }> = async (context: GetSessionParams | undefined) => {
-//     return {
-//       props: {
-//         session: await getSession(context)
-//       }
-//     }
-// }
