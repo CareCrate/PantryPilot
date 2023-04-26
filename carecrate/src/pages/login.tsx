@@ -30,7 +30,7 @@ export default function Login() {
 
   return (
     <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <Typography component="h1" variant="h5">Sign in</Typography>
+      <Typography component="h1" variant="h5">Login</Typography>
       {alertState.open && (
         <Alert severity={alertState.severity} onClose={() => setAlertState((prevState) => ({ ...prevState, open: false }))} sx={{ mb: 2 }}>
           <AlertTitle>{alertState.severity === 'success' ? 'Success' : 'Error'}</AlertTitle>

@@ -53,17 +53,17 @@ async function validateWorkspaceCredentials(credentials: WorkspaceCredentials): 
             role: userData.role
         }
 
-        const userRef = doc(db, 'workspaces', workspaceId, 'users', userId);
-        onSnapshot(userRef, (docSnapshot) => {
-            if (docSnapshot.exists()) {
-                const updatedUserData = docSnapshot.data();
-                const updatedUser: WorkspaceUser = {
-                    ...user,
-                    role: updatedUserData.role
-                };
-                saveSession(updatedUser);
-            }
-        });
+        // const userRef = doc(db, 'workspaces', workspaceId, 'users', userId);
+        // onSnapshot(userRef, (docSnapshot) => {
+        //     if (docSnapshot.exists()) {
+        //         const updatedUserData = docSnapshot.data();
+        //         const updatedUser: WorkspaceUser = {
+        //             ...user,
+        //             role: updatedUserData.role
+        //         };
+        //         saveSession(updatedUser);
+        //     }
+        // });
         console.log("Fetched user from Firestore: ", user);
         return user;
     } catch (error) {

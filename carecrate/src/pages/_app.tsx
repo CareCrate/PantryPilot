@@ -39,7 +39,7 @@ export default function App({ Component, pageProps }: AppProps) {
   });
 
   return (
-    <SessionProvider>
+    <SessionProvider session={pageProps.session}>
       <ThemeProvider theme={theme}>
         <CssBaseline>
           <Layout toggleMode={toggleMode}>
