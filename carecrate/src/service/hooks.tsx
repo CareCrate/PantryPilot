@@ -105,12 +105,20 @@ export const useFirestore = () => {
     save();
   };
 
+  const getMonthlyReport = async (id: string) => {
+    const docRef = doc(db, "reports", id);
+    const docSnap = await getDoc(docRef);
+
+    return docSnap.data();
+  };
+
   return {
     newSaveFamily,
     queryFamilies,
     saveVisit,
     saveWaste,
-    updateFoodWeight
+    updateFoodWeight,
+    getMonthlyReport
   };
 };
 

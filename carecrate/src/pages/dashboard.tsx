@@ -6,7 +6,7 @@ import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import { useEffect, useState } from "react";
-import { Family, Visit, Weight } from "../types";
+import { Family, Report, Visit, Weight } from "../types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { SessionUser } from "@/types";
@@ -142,6 +142,7 @@ export default function Dashboard() {
   const [queriedFamilies, setQueriedFamilies] = useState<Family[]>([]);
   const [typingDriveInWeight, setTypingDriveInWeight] = useState(0);
   const [wasteWeight, setWasteWeight] = useState(0);
+  const [report, setReport] = useState<Report>();
 
   const handleAddCheckinClick = () => {
     setIsCheckInModalOpen(true);
@@ -271,6 +272,16 @@ export default function Dashboard() {
 
     resetCheckInModal();
   };
+
+  const getMonthlyReport = (id: string) => {
+    setReport(firestore.getMonthlyReport(id));
+  };
+
+  useEffect(() => {
+    if (!report) {
+      alert("No report found for the selected month.");
+    }
+  }, [report]);
 
   useEffect(() => {
     if (phoneNumber.length === 10) {
