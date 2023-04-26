@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material/styles';
-import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch } from "@mui/material";
+import { AppBar, Box, Button, Toolbar, Typography, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch } from "@mui/material";
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Brightness6Icon from '@mui/icons-material/Brightness6';
 import TimelineIcon from '@mui/icons-material/Timeline';
@@ -49,6 +49,12 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                                         <TimelineIcon fontSize='large' sx={{ color: '#FFF' }}/>
                                     </IconButton>
                                 )}
+                            </>
+                        )}
+                        {!session && (
+                            <>
+                                <Button color='inherit' href='/login'>Login</Button>
+                                <Button color='inherit' href='/register'>Register</Button>
                             </>
                         )}
                         <IconButton size='large' onClick={toggleMode}>
