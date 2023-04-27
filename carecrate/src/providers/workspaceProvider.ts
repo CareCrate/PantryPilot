@@ -15,7 +15,6 @@ const WorkspaceProvider: CredentialsConfig = {
         workspace: { label: "Workspace", type: "text", placeholder: "myworkspace" },
     },
     authorize: async (credentials: Record<string, string> | undefined, req: Pick<RequestInternal, "body" | "query" | "headers" | "method">) => {
-        console.log("Authorize function called with credentials: ", credentials);
         if (!credentials) {
             console.log("Credentials are not provided");
             return null;
@@ -26,7 +25,6 @@ const WorkspaceProvider: CredentialsConfig = {
             password: credentials.password
         };
         const user = await validateWorkspaceCredentials(workspaceCredentials);
-        console.log("User in authorize: ", user);
         if (user) {
             return { ...user, account: { workspaceId: user.workspaceId }};
         }

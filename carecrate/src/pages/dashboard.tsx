@@ -350,7 +350,6 @@ export default function Dashboard() {
   }, [status, session, router]);
 
   if (session) {
-    console.log(session.user);
     return (
       <Box
         component="div"
