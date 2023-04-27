@@ -11,6 +11,7 @@ import { GetServerSideProps } from 'next';
 import { useSession, getSession, GetSessionParams, signOut } from 'next-auth/react';
 import { Session } from 'next-auth';
 import { SessionUser } from '@/types';
+import Link from 'next/link';
 
 interface NavbarProps {
     toggleMode: () => void;
@@ -58,11 +59,13 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                     <Stack direction='row' sx={{ alignItems: 'center' }}>
                         {session && (
                             <>
-                                <Tooltip title='Dashboard'>
-                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple href='/dashboard'>
-                                        <DashboardIcon fontSize='large' sx={{ color: '#FFF' }} />
-                                    </IconButton>
-                                </Tooltip>
+                                <Link href='/dashboard' passHref>
+                                    <Tooltip title='Dashboard'>
+                                        <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple>
+                                            <DashboardIcon fontSize='large' sx={{ color: '#FFF' }} />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Link>
                                 {(user?.role === 'admin') && (
                                     <Tooltip title='Reports'>
                                         <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleReportsClick}>
@@ -75,17 +78,25 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                                         <AccountCircle fontSize='large' sx={{ color: '#FFF' }} />
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip title='Settings'>
-                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple href='/settings'>
-                                        <TuneIcon fontSize='large' sx={{ color: '#FFF' }} />
-                                    </IconButton>
-                                </Tooltip>
+                                {(user?.role === 'admin') && (
+                                    <Link href='/settings' passHref>
+                                        <Tooltip title='Settings'>
+                                            <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple>
+                                                <TuneIcon fontSize='large' sx={{ color: '#FFF' }} />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Link>
+                                )}
                             </>
                         )}
                         {!session && (
                             <>
-                                <Button color='inherit' href='/login'>Login</Button>
-                                <Button color='inherit' href='/register'>Register</Button>
+                                <Link href='/login' passHref style={{ textDecoration: 'none', color: '#424242' }}>
+                                    <Button color='inherit'>Login</Button>
+                                </Link>
+                                <Link href='/register' passHref style={{ textDecoration: 'none', color: '#424242' }}>
+                                    <Button color='inherit' sx={{ color: 'inherit' }}>Register</Button>
+                                </Link>
                             </>
                         )}
                         <Tooltip title='Change Theme'>
