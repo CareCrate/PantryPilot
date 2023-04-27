@@ -1,7 +1,7 @@
 /**
  * A list of custom types to be used throught the application
  */
-import { User } from 'next-auth';
+import { User } from "next-auth";
 import { Session as NextAuthSession } from "next-auth";
 
 export type Family = {
@@ -34,9 +34,17 @@ export type Volunteer = {
   lastVolunteerDate: Date;
 };
 
-export type Waste = {
-  timeOfWaste: string;
-  lbs: number;
+export type Weight = {
+  weight: number;
+};
+
+export type Report = {
+  household: number;
+  persons: number;
+  children: number;
+  seniors: number;
+  weightOfFood: number;
+  waste: number;
 };
 
 export interface WorkspaceUser extends User {

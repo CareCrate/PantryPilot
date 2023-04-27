@@ -14,34 +14,34 @@ import { SessionUser } from '@/types';
 import Link from 'next/link';
 
 interface NavbarProps {
-    toggleMode: () => void;
-};
+  toggleMode: () => void;
+}
 
 export default function Navbar({ toggleMode }: NavbarProps) {
-    const { data: session } = useSession();
-    const user = session?.user as SessionUser | undefined;
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    const handleMenu = (event: ChangeEvent<HTMLElement>) => {
-        setAnchorEl(event?.currentTarget);
-    };
-    const handleSignout = async () => {
-        await signOut({ callbackUrl: '/login' });
-        setAnchorEl(null);
-    };
+  const { data: session } = useSession();
+  const user = session?.user as SessionUser | undefined;
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const handleMenu = (event: ChangeEvent<HTMLElement>) => {
+    setAnchorEl(event?.currentTarget);
+  };
+  const handleSignout = async () => {
+    await signOut({ callbackUrl: "/login" });
+    setAnchorEl(null);
+  };
 
-    const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
-    const handleReportsClick = () => {
-        setIsReportsModalOpen(true);
-    };
-    const resetReportsModal = () => {
-        setIsReportsModalOpen(false);
-    };
-    const saveReports = () => {
-        resetReportsModal();
-    };
+  const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
+  const handleReportsClick = () => {
+    setIsReportsModalOpen(true);
+  };
+  const resetReportsModal = () => {
+    setIsReportsModalOpen(false);
+  };
+  const saveReports = () => {
+    resetReportsModal();
+  };
 
     return (
         <AppBar position='static' elevation={0} sx={{ background: '#C2AFF0' }}>

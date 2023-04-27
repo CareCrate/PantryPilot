@@ -1,14 +1,15 @@
 import DataCard from "@/components/dashboard/DataCard";
 import Modal from "@/components/dashboard/Modal";
+import { useDriveInWeightListener, useFirestore, useReportGenerator, useVisitsListener } from "@/service/hooks";
 import { Box, Button, Checkbox, FormControl, FormControlLabel, FormGroup, Grid, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
+import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
-import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Family, Report, Visit, Weight } from "../types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { SessionUser, Family, Visit } from "@/types";
-import { useFirestore, useVisitsListener } from "@/service/hooks";
+import { SessionUser } from "@/types";
 
 // Available Fields for Mapping
 const fields: GridColDef[] = [
@@ -116,6 +117,8 @@ export default function Dashboard() {
   const user = session?.user as SessionUser | undefined;
   const firestore: any = useFirestore();
   const allVisits: any = useVisitsListener();
+  const driveInWeight: Weight = useDriveInWeightListener();
+  const reportGenerator: any = useReportGenerator();
 
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isFoodWeightDisabled, setIsFoodWeightDisabled] = useState(true);
@@ -137,9 +140,13 @@ export default function Dashboard() {
   const [selectedFamilyIndex, setSelectedFamilyIndex] = useState(-1);
   const [hasAdditionalFamilies, setHasAdditionalFamilies] = useState(false);
   const [queriedFamilies, setQueriedFamilies] = useState<Family[]>([]);
+  const [typingDriveInWeight, setTypingDriveInWeight] = useState(0);
+  const [wasteWeight, setWasteWeight] = useState(0);
+  const [report, setReport] = useState<Report>();
 
   const handleAddCheckinClick = () => {
     setIsCheckInModalOpen(true);
+    // firestore.updateFoodWeight(12);
   };
 
   const handleCheckInTypeChange = (event: SelectChangeEvent) => {
@@ -175,6 +182,14 @@ export default function Dashboard() {
         }
         case "numElderly": {
           setNumElderly(e.target.value);
+          break;
+        }
+        case "typingDriveInWeight": {
+          setTypingDriveInWeight(e.target.value);
+          break;
+        }
+        case "wasteWeight": {
+          setWasteWeight(e.target.value);
           break;
         }
       }
@@ -251,11 +266,22 @@ export default function Dashboard() {
 
     firestore.newSaveFamily(familyToSave);
     firestore.saveVisit(visitToSave);
+    reportGenerator.generate(familyToSave.numInHousehold, familyToSave.numChildren, familyToSave.numElderly, visitToSave.foodWeight);
 
     setMyVisits(current => [...current, visitToSave]);
 
     resetCheckInModal();
   };
+
+  const getMonthlyReport = (id: string) => {
+    setReport(firestore.getMonthlyReport(id));
+  };
+
+  // useEffect(() => {
+  //   if (!report) {
+  //     alert("No report found for the selected month.");
+  //   }
+  // }, [report]);
 
   useEffect(() => {
     if (phoneNumber.length === 10) {
@@ -276,7 +302,8 @@ export default function Dashboard() {
   //
   useEffect(() => {
     if (checkInType === "Drive In") {
-      setFoodWeight("45");
+      setFoodWeight(driveInWeight.weight.toString());
+      console.log(driveInWeight);
       setIsFoodWeightDisabled(true);
     } else if (checkInType === "DoorDash") {
       setFoodWeight("25");
@@ -324,27 +351,81 @@ export default function Dashboard() {
 
   if (session) {
     return (
-      <Box component="div" sx={{ overflowX: "clip", position: "relative", margin: "auto", maxWidth: "1920px", padding: "2em" }}>
+      <Box
+        component="div"
+        sx={{
+          overflowX: "clip",
+          position: "relative",
+          margin: "auto",
+          maxWidth: "1920px",
+          padding: "2em"
+        }}>
         <Grid container spacing={0} direction="column" sx={{ width: "100%" }}>
           <Grid item container direction="column" spacing={0} sx={{ flexDirection: "column" }}>
+            {/* TODO: Implement Cards. */}
             <Stack direction="row" spacing={3}>
-              <DataCard subtitle={"Total checkins today"} value={100} prev={120} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} onSubmit={() => {}} />
-              <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} onSubmit={() => {}} />
-              <DataCard subtitle={"Total household today"} value={3000} prev={2700} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} onSubmit={() => {}} />
-              <DataCard subtitle={"Total weight tossed (lbs)"} value={0} prev={0} showPercent={false} session={session} editTitle={"Change Weight of Food Lost"} editSubtext={"Some cool subtext that makes sense."} editElements={[<TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />]} onSubmit={function (): void {
-                throw new Error("Function not implemented.");
-              } } />
-              {user?.role === "admin" && <DataCard subtitle={"Total weight of food (lbs)"} value={0} prev={0} showPercent={false} session={session} editTitle={"Change Weight of Food"} editSubtext={"Some cool subtext that makes sense."} editElements={[<TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />]} onSubmit={function (): void {
-                throw new Error("Function not implemented.");
-              } } />}
+              <DataCard subtitle={"Families served today"} value={allVisits.length} prev={120} showPercent={false} session={session} editTitle={""} editSubtext={""} editElements={[]} />
+              {/* <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} /> */}
+              {/* <DataCard subtitle={"Total household today"} value={3000} prev={2700} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} /> */}
+              <DataCard
+                subtitle={"Weight of food discarded today (lbs)"}
+                value={10}
+                prev={0}
+                showPercent={false}
+                session={session}
+                editTitle={"Change Weight (lbs)"}
+                editSubtext={"Please enter the weight of any food you have discarded."}
+                editElements={[
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="weight"
+                    label="Weight"
+                    type="weight"
+                    fullWidth
+                    variant="standard"
+                    onChange={e => {
+                      handleTextBoxChange(e, "wasteWeight");
+                    }}
+                    value={wasteWeight}
+                  />
+                ]}
+              />
+              {user?.role === "admin" && (
+                <DataCard
+                  subtitle={"Drive-in food weight (lbs)"}
+                  value={driveInWeight.weight}
+                  prev={0}
+                  showPercent={false}
+                  session={session}
+                  editTitle={"Change Weight (lbs)"}
+                  editSubtext={"Please enter the weight of food that drive-in families will receive."}
+                  editElements={[
+                    <TextField
+                      autoFocus
+                      margin="dense"
+                      id="weight"
+                      label="Weight"
+                      type="text"
+                      fullWidth
+                      variant="standard"
+                      onChange={e => {
+                        handleTextBoxChange(e, "typingDriveInWeight");
+                      }}
+                      value={typingDriveInWeight}
+                    />
+                  ]}
+                />
+              )}
             </Stack>
+
             {/* TODO: Implement Dynamic List */}
             <Stack direction="row" spacing={0} sx={{ marginTop: "5em" }}>
               <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                Recent Checkins
+                Today's Families
               </Typography>
               <Button variant="contained" disableElevation disableRipple disableTouchRipple sx={{ textTransform: "none" }} onClick={handleAddCheckinClick}>
-                + Add Checkin
+                + Add Family
               </Button>
             </Stack>
             <RadioGroup row aria-labelledby="demo-row-radio-buttons-group-label" name="row-radio-buttons-group" defaultValue="mine">
@@ -384,7 +465,7 @@ export default function Dashboard() {
           onCancel={resetCheckInModal}
           onClose={() => setIsCheckInModalOpen(false)}
           title="Checkin"
-          content="To checkin a user, please enter in their associated informaton. If a phone number is found, the information will be populated automatically."
+          content="You must fill out all form fields before you are able to submit."
           submitText="Submit"
           inputFields={[
             <TextField
@@ -407,7 +488,13 @@ export default function Dashboard() {
             </FormGroup>,
             <FormControl fullWidth sx={{ display: hasAdditionalFamilies ? "inline-flex" : "none" }}>
               <InputLabel id="select-family">Select Family</InputLabel>
-              <Select labelId="select-family" id="select-family" value={selectedFamily} label="Select Family">
+              <Select
+                labelId="select-family"
+                id="select-family"
+                value={selectedFamily}
+                label="Select Family"
+                // onChange={handleSelectedFamilyChange}
+              >
                 {queriedFamilies.map((family: any, index: number) => {
                   return (
                     <MenuItem key={index} value={family.firstName + " " + family.lastName} onClick={() => handleSelectedFamilyChange(index)}>
