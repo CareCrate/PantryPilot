@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useSession } from "next-auth/react";
 import { TextField, Button, Box, Typography } from '@mui/material';
 
 export default function Signup() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  useEffect(() => {
+    if (session) {
+      router.push('/dashboard');
+    }
+  }, [session, router]);
   const [formData, setFormData] = useState({
     workspace: '',
     email: '',
     name: '',
     password: '',
   });
-  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

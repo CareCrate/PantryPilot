@@ -2,7 +2,7 @@ import { Alert, AlertTitle, Box, Button, Checkbox, FormControlLabel, IconButton,
 import { GetServerSideProps } from "next";
 import type { Session } from "next-auth";
 import { useSession, getSession, GetSessionParams, signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -10,6 +10,11 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 export default function Login() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  useEffect(() => {
+    if (session) {
+      router.push('/dashboard');
+    }
+  }, [session, router]);
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
