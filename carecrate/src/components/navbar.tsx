@@ -1,5 +1,6 @@
 import { useTheme } from "@mui/material/styles";
-import { AppBar, Box, Toolbar, Typography, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch } from "@mui/material";
+import { AppBar, Box, Button, Toolbar, Typography, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch } from "@mui/material";
+import Modal from "@/components/dashboard/Modal";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import Brightness6Icon from "@mui/icons-material/Brightness6";
 import TimelineIcon from "@mui/icons-material/Timeline";
@@ -14,7 +15,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ toggleMode }: NavbarProps) {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const user = session?.user as SessionUser | undefined;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const handleClose = () => {
@@ -28,17 +29,28 @@ export default function Navbar({ toggleMode }: NavbarProps) {
     setAnchorEl(null);
   };
 
+  const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
+  const handleReportsClick = () => {
+    setIsReportsModalOpen(true);
+  };
+  const resetReportsModal = () => {
+    setIsReportsModalOpen(false);
+  };
+  const saveReports = () => {
+    resetReportsModal();
+  };
+
   return (
     <AppBar position="static" elevation={0} sx={{ background: "#C2AFF0" }}>
       <Toolbar>
         {session && (
           <Typography variant="h5" component="div" sx={{ flexGrow: 1, color: "#FFF" }}>
-            Hello, {session?.user?.name}
+            Good Morning, {session?.user?.name}
           </Typography>
         )}
         {!session && (
           <Typography variant="h5" component="div" sx={{ flexGrow: 1, color: "#FFF" }}>
-            PantryPilot
+            CareCrate
           </Typography>
         )}
         <Box component="div">
@@ -48,11 +60,22 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                 <IconButton size="large" disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
                   <AccountCircle fontSize="large" sx={{ color: "#FFF" }} />
                 </IconButton>
+                {console.log("USER ROLE: ", user?.role)}
                 {user?.role === "admin" && (
-                  <IconButton size="large" disableRipple disableFocusRipple disableTouchRipple>
+                  <IconButton size="large" disableRipple disableFocusRipple disableTouchRipple onClick={handleReportsClick}>
                     <TimelineIcon fontSize="large" sx={{ color: "#FFF" }} />
                   </IconButton>
                 )}
+              </>
+            )}
+            {!session && (
+              <>
+                <Button color="inherit" href="/login">
+                  Login
+                </Button>
+                <Button color="inherit" href="/register">
+                  Register
+                </Button>
               </>
             )}
             <IconButton size="large" onClick={toggleMode}>
@@ -66,16 +89,9 @@ export default function Navbar({ toggleMode }: NavbarProps) {
               <MenuItem onClick={handleSignout}>Logout</MenuItem>
             </Menu>
           )}
+          <Modal open={isReportsModalOpen} onClose={() => setIsReportsModalOpen(false)} title="Reports" content="Amazing reports text that goes here." submitText="Submit" inputFields={[]} onSubmit={saveReports} onCancel={resetReportsModal} />
         </Box>
       </Toolbar>
     </AppBar>
   );
 }
-
-export const getServerSideProps: GetServerSideProps<{ session: Session | null }> = async (context: GetSessionParams | undefined) => {
-  return {
-    props: {
-      session: await getSession(context)
-    }
-  };
-};
