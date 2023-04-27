@@ -2,11 +2,17 @@ import type { AppProps } from 'next/app'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import Layout from '@/components/layout'
 import { SessionProvider } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 export default function App({ Component, pageProps }: AppProps) {
   const [mode, setMode] = useState<'light' | 'dark'>('light');
+  useEffect(() => {
+    const storedMode = localStorage.getItem('mode') as 'light' | 'dark' | null;
+    if (storedMode) {
+      setMode(storedMode);
+    }
+  }, []);
   const toggleMode = () => {
     const selectedMode = mode === 'light' ? 'dark' : 'light';
     setMode(selectedMode);
