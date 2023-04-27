@@ -365,7 +365,7 @@ export default function Dashboard() {
           <Grid item container direction="column" spacing={0} sx={{ flexDirection: "column" }}>
             {/* TODO: Implement Cards. */}
             <Stack direction="row" spacing={3}>
-              <DataCard subtitle={"Families served today"} value={allVisits.length} prev={120} showPercent={false} session={session} editTitle={""} editSubtext={""} editElements={[]} />
+              <DataCard subtitle={"Families served today"} value={allVisits.length} prev={120} showPercent={false} session={session} onSubmit={() => {}} editTitle={""} editSubtext={""} editElements={[]} />
               {/* <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} /> */}
               {/* <DataCard subtitle={"Total household today"} value={3000} prev={2700} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} /> */}
               <DataCard
@@ -374,6 +374,7 @@ export default function Dashboard() {
                 prev={0}
                 showPercent={false}
                 session={session}
+                onSubmit={firestore.saveWaste(wasteWeight)}
                 editTitle={"Change Weight (lbs)"}
                 editSubtext={"Please enter the weight of any food you have discarded."}
                 editElements={[
@@ -399,6 +400,7 @@ export default function Dashboard() {
                   prev={0}
                   showPercent={false}
                   session={session}
+                  onSubmit={firestore.updateFoodWeight(driveInWeight.weight)}
                   editTitle={"Change Weight (lbs)"}
                   editSubtext={"Please enter the weight of food that drive-in families will receive."}
                   editElements={[
