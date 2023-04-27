@@ -1,9 +1,11 @@
 import { useTheme } from '@mui/material/styles';
-import { AppBar, Box, Button, Toolbar, Typography, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch } from "@mui/material";
+import { AppBar, Box, Button, Toolbar, Typography, Tooltip, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch, Icon } from "@mui/material";
 import Modal from "@/components/dashboard/Modal";
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Brightness6Icon from '@mui/icons-material/Brightness6';
 import TimelineIcon from '@mui/icons-material/Timeline';
+import TuneIcon from '@mui/icons-material/Tune';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { ChangeEvent, useState } from "react";
 import { GetServerSideProps } from 'next';
 import { useSession, getSession, GetSessionParams, signOut } from 'next-auth/react';
@@ -44,24 +46,40 @@ export default function Navbar({ toggleMode }: NavbarProps) {
         <AppBar position='static' elevation={0} sx={{ background: '#C2AFF0' }}>
             <Toolbar>
                 {session && (
-                    <Typography variant='h5' component='div' sx={{ flexGrow: 1, color: '#FFF' }}>Good Morning, {session?.user?.name}</Typography>
+                    <Stack spacing={0} sx={{ flexGrow: 1 }}>
+                        <Typography variant='h5' component='div' sx={{ flexGrow: 1, color: '#FFF' }}>PantryPilot</Typography>
+                        <Typography variant='subtitle1' component='div' sx={{ flexGrow: 1, color: '#FFF' }}>Hi, {session?.user?.name}</Typography>
+                    </Stack>
                 )}
                 {!session && (
-                    <Typography variant='h5' component='div' sx={{ flexGrow: 1, color: '#FFF' }}>CareCrate</Typography>
+                    <Typography variant='h5' component='div' sx={{ flexGrow: 1, color: '#FFF' }}>PantryPilot</Typography>
                 )}
                 <Box component='div'>
                     <Stack direction='row' sx={{ alignItems: 'center' }}>
                         {session && (
                             <>
-                                <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
-                                    <AccountCircle fontSize='large' sx={{ color: '#FFF' }} />
-                                </IconButton>
-                                {console.log("USER ROLE: ", user?.role)}
-                                {(user?.role === 'admin') && (
-                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleReportsClick}>
-                                        <TimelineIcon fontSize='large' sx={{ color: '#FFF' }} />
+                                <Tooltip title='Dashboard'>
+                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple href='/dashboard'>
+                                        <DashboardIcon fontSize='large' sx={{ color: '#FFF' }} />
                                     </IconButton>
+                                </Tooltip>
+                                {(user?.role === 'admin') && (
+                                    <Tooltip title='Reports'>
+                                        <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleReportsClick}>
+                                            <TimelineIcon fontSize='large' sx={{ color: '#FFF' }} />
+                                        </IconButton>
+                                    </Tooltip>
                                 )}
+                                <Tooltip title='Profile'>
+                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
+                                        <AccountCircle fontSize='large' sx={{ color: '#FFF' }} />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title='Settings'>
+                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple href='/settings'>
+                                        <TuneIcon fontSize='large' sx={{ color: '#FFF' }} />
+                                    </IconButton>
+                                </Tooltip>
                             </>
                         )}
                         {!session && (
@@ -70,14 +88,14 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                                 <Button color='inherit' href='/register'>Register</Button>
                             </>
                         )}
-                        <IconButton size='large' onClick={toggleMode}>
-                            <Brightness6Icon fontSize='small' />
-                        </IconButton>
+                        <Tooltip title='Change Theme'>
+                            <IconButton size='large' onClick={toggleMode}>
+                                <Brightness6Icon fontSize='small' />
+                            </IconButton>
+                        </Tooltip>
                     </Stack>
                     {session && (
                         <Menu id='profile_menu' anchorEl={anchorEl} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} keepMounted transformOrigin={{ vertical: 'top', horizontal: 'right' }} open={Boolean(anchorEl)} onClose={handleClose} sx={{ marginTop: '2em', marginLeft: '-1em' }}>
-                            {/* TODO: Implement Settings. */}
-                            {/* <MenuItem onClick={handleClose}>Settings</MenuItem> */}
                             <MenuItem onClick={handleSignout}>Logout</MenuItem>
                         </Menu>
                     )}

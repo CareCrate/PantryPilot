@@ -323,17 +323,20 @@ export default function Dashboard() {
   }, [status, session, router]);
 
   if (session) {
-    console.log(session.user);
     return (
       <Box component="div" sx={{ overflowX: "clip", position: "relative", margin: "auto", maxWidth: "1920px", padding: "2em" }}>
         <Grid container spacing={0} direction="column" sx={{ width: "100%" }}>
           <Grid item container direction="column" spacing={0} sx={{ flexDirection: "column" }}>
             <Stack direction="row" spacing={3}>
-              <DataCard subtitle={"Total checkins today"} value={100} prev={120} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} />
-              <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} />
-              <DataCard subtitle={"Total household today"} value={3000} prev={2700} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} />
-              <DataCard subtitle={"Total weight tossed (lbs)"} value={0} prev={0} showPercent={false} session={session} editTitle={"Change Weight of Food Lost"} editSubtext={"Some cool subtext that makes sense."} editElements={[<TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />]} />
-              {user?.role === "admin" && <DataCard subtitle={"Total weight of food (lbs)"} value={0} prev={0} showPercent={false} session={session} editTitle={"Change Weight of Food"} editSubtext={"Some cool subtext that makes sense."} editElements={[<TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />]} />}
+              <DataCard subtitle={"Total checkins today"} value={100} prev={120} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} onSubmit={() => {}} />
+              <DataCard subtitle={"Total volunteers today"} value={4} prev={20} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} onSubmit={() => {}} />
+              <DataCard subtitle={"Total household today"} value={3000} prev={2700} showPercent={true} session={session} editTitle={""} editSubtext={""} editElements={[]} onSubmit={() => {}} />
+              <DataCard subtitle={"Total weight tossed (lbs)"} value={0} prev={0} showPercent={false} session={session} editTitle={"Change Weight of Food Lost"} editSubtext={"Some cool subtext that makes sense."} editElements={[<TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />]} onSubmit={function (): void {
+                throw new Error("Function not implemented.");
+              } } />
+              {user?.role === "admin" && <DataCard subtitle={"Total weight of food (lbs)"} value={0} prev={0} showPercent={false} session={session} editTitle={"Change Weight of Food"} editSubtext={"Some cool subtext that makes sense."} editElements={[<TextField autoFocus margin="dense" id="weight" label="Weight" type="weight" fullWidth variant="standard" />]} onSubmit={function (): void {
+                throw new Error("Function not implemented.");
+              } } />}
             </Stack>
             {/* TODO: Implement Dynamic List */}
             <Stack direction="row" spacing={0} sx={{ marginTop: "5em" }}>
