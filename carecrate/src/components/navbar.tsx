@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material/styles';
-import { AppBar, Box, Button, Toolbar, Typography, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch, Icon } from "@mui/material";
+import { AppBar, Box, Button, Toolbar, Typography, Tooltip, IconButton, Menu, MenuItem, FormControlLabel, Stack, Switch, Icon } from "@mui/material";
 import Modal from "@/components/dashboard/Modal";
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Brightness6Icon from '@mui/icons-material/Brightness6';
@@ -58,20 +58,28 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                     <Stack direction='row' sx={{ alignItems: 'center' }}>
                         {session && (
                             <>
-                                <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple href='/dashboard'>
-                                    <DashboardIcon fontSize='large' sx={{ color: '#FFF' }} />
-                                </IconButton>
-                                {(user?.role === 'admin') && (
-                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleReportsClick}>
-                                        <TimelineIcon fontSize='large' sx={{ color: '#FFF' }} />
+                                <Tooltip title='Dashboard'>
+                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple href='/dashboard'>
+                                        <DashboardIcon fontSize='large' sx={{ color: '#FFF' }} />
                                     </IconButton>
+                                </Tooltip>
+                                {(user?.role === 'admin') && (
+                                    <Tooltip title='Reports'>
+                                        <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleReportsClick}>
+                                            <TimelineIcon fontSize='large' sx={{ color: '#FFF' }} />
+                                        </IconButton>
+                                    </Tooltip>
                                 )}
-                                <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
-                                    <AccountCircle fontSize='large' sx={{ color: '#FFF' }} />
-                                </IconButton>
-                                <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple href='/settings'>
-                                    <TuneIcon fontSize='large' sx={{ color: '#FFF' }} />
-                                </IconButton>
+                                <Tooltip title='Profile'>
+                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple onClick={handleMenu}>
+                                        <AccountCircle fontSize='large' sx={{ color: '#FFF' }} />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title='Settings'>
+                                    <IconButton size='large' disableRipple disableFocusRipple disableTouchRipple href='/settings'>
+                                        <TuneIcon fontSize='large' sx={{ color: '#FFF' }} />
+                                    </IconButton>
+                                </Tooltip>
                             </>
                         )}
                         {!session && (
@@ -80,9 +88,11 @@ export default function Navbar({ toggleMode }: NavbarProps) {
                                 <Button color='inherit' href='/register'>Register</Button>
                             </>
                         )}
-                        <IconButton size='large' onClick={toggleMode}>
-                            <Brightness6Icon fontSize='small' />
-                        </IconButton>
+                        <Tooltip title='Change Theme'>
+                            <IconButton size='large' onClick={toggleMode}>
+                                <Brightness6Icon fontSize='small' />
+                            </IconButton>
+                        </Tooltip>
                     </Stack>
                     {session && (
                         <Menu id='profile_menu' anchorEl={anchorEl} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} keepMounted transformOrigin={{ vertical: 'top', horizontal: 'right' }} open={Boolean(anchorEl)} onClose={handleClose} sx={{ marginTop: '2em', marginLeft: '-1em' }}>
