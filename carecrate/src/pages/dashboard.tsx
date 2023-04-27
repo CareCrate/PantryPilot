@@ -277,11 +277,11 @@ export default function Dashboard() {
     setReport(firestore.getMonthlyReport(id));
   };
 
-  useEffect(() => {
-    if (!report) {
-      alert("No report found for the selected month.");
-    }
-  }, [report]);
+  // useEffect(() => {
+  //   if (!report) {
+  //     alert("No report found for the selected month.");
+  //   }
+  // }, [report]);
 
   useEffect(() => {
     if (phoneNumber.length === 10) {
