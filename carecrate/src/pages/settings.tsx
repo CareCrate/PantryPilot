@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { DataGrid, GridColDef, GridEditRowsModel, GridRowId, GridCellEditCommitParams, GridCellParams } from "@mui/x-data-grid";
-import { Box, Button, FormControl, Grid, InputLabel, MenuItem, TextField, Typography } from "@mui/material";
+import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { SessionUser, WorkspaceUser } from "@/types";
 import { collection, addDoc, query, where, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
@@ -66,34 +66,26 @@ export default function Settings() {
   const [editRowsModel, setEditRowsModel] = useState<GridEditRowsModel>({});
 
   const handleEditCellChangeCommitted = async (params: GridCellEditCommitParams) => {
-    console.log("1");
     const { id, field, value } = params;
 
     const originalUser = users.find(user => user.id === id);
     if (!originalUser) return;
 
     const oldValue = originalUser[field];
-    console.log("3");
 
     if (field && value !== undefined && value !== oldValue) {
-      console.log("A");
       const updatedUser = { [field]: value };
       if (workspaceId) {
-        console.log("B");
         await updateUser(id as string, updatedUser, workspaceId);
         const updatedUsers = users.map(user => (user.id === id ? { ...user, ...updatedUser } : user));
         setUsers(updatedUsers);
-        console.log("C");
       }
-      console.log("D");
       const updatedEditRowsModel = {
         ...editRowsModel,
         [id]: { ...editRowsModel[id as string], [field]: { value } }
       };
       setEditRowsModel(updatedEditRowsModel);
-      console.log("E");
     }
-    console.log("3");
   };
 
   const handleDelete = async (id: GridRowId) => {
@@ -121,35 +113,38 @@ export default function Settings() {
     <Box component="div" sx={{ overflowX: "clip", position: "relative", margin: "auto", maxWidth: "1920px", padding: "2em" }}>
       <Grid container spacing={0} direction="column" sx={{ width: "100%" }}>
         <Grid item container direction="column" spacing={0} sx={{ flexDirection: "column" }}>
-          <Typography component="h1" variant="h5">
-            Settings
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            <TextField margin="normal" required fullWidth id="name" label="Name" name="name" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} />
-            <TextField margin="normal" required fullWidth id="email" label="Email Address" name="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} />
-            <TextField margin="normal" required fullWidth id="password" label="Password" name="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
-            <FormControl fullWidth margin="normal" required>
-              <InputLabel id="role-label">Role</InputLabel>
-              <TextField select id="role" label="Role" name="role" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}>
-                <MenuItem value="user">User</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
-              </TextField>
-            </FormControl>
-            <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, textTransform: "none" }}>
-              Add User
-            </Button>
-          </Box>
-          <div style={{ height: 400, width: "100%", marginTop: 16 }}>
-            <DataGrid
-              rows={users}
-              columns={columns}
-              pageSize={5}
-              editMode="row"
-              editRowsModel={editRowsModel}
-              onEditRowsModelChange={setEditRowsModel}
-              onCellEditCommit={handleEditCellChangeCommitted} // Change this line
-            />
-          </div>
+          <Typography component="h3" variant="h3">Settings</Typography>
+          <Stack spacing={5}>
+            <Box component="div" sx={{ overflowX: "clip", position: "relative", mt: '2em' }}>
+              <Typography component="h5" variant="h5">Users Management</Typography>
+              <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+                <TextField margin="normal" required fullWidth id="name" label="Name" name="name" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} />
+                <TextField margin="normal" required fullWidth id="email" label="Email Address" name="email" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} />
+                <TextField margin="normal" required fullWidth id="password" label="Password" name="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
+                <FormControl fullWidth margin="normal" required>
+                  <InputLabel id="role-label">Role</InputLabel>
+                  <TextField select id="role" label="Role" name="role" value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })}>
+                    <MenuItem value="user">User</MenuItem>
+                    <MenuItem value="admin">Admin</MenuItem>
+                  </TextField>
+                </FormControl>
+                <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, textTransform: "none" }}>
+                  Add User
+                </Button>
+              </Box>
+              <div style={{ height: 400, width: "100%", marginTop: 16 }}>
+                <DataGrid
+                  rows={users}
+                  columns={columns}
+                  pageSize={5}
+                  editMode="row"
+                  editRowsModel={editRowsModel}
+                  onEditRowsModelChange={setEditRowsModel}
+                  onCellEditCommit={handleEditCellChangeCommitted} // Change this line
+                />
+              </div>
+            </Box>
+          </Stack>
         </Grid>
       </Grid>
     </Box>
