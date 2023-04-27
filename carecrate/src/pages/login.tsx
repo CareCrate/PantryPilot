@@ -3,9 +3,11 @@ import { GetServerSideProps } from 'next';
 import type { Session } from 'next-auth';
 import { useSession, getSession, GetSessionParams, signIn } from 'next-auth/react';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 
 export default function Login() {
+  const router = useRouter();
   const { data: session, status } = useSession();
 
   const [alertState, setAlertState] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({ open: false, message: '', severity: 'error' });
@@ -13,18 +15,25 @@ export default function Login() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget)
-    const result = await signIn('workspace', {
-      callbackUrl: '/dashboard',
-      workspace: data.get('workspace'),
-      email: data.get('email'),
-      password: data.get('password')
-    });
+    try {
+      const result = await signIn('workspace', {
+        callbackUrl: '/dashboard',
+        workspace: data.get('workspace'),
+        email: data.get('email'),
+        password: data.get('password')
+      });
 
-    // Alert Popup
-    if (result && result.error) {
-      setAlertState({ open: true, message: result.error, severity: 'error' });
-    } else {
-      setAlertState({ open: true, message: 'Logged in successfully', severity: 'success' });
+      // Alert Popup
+      if (result && result.error) {
+        setAlertState({ open: true, message: result.error, severity: 'error' });
+      } else {
+        setAlertState({ open: true, message: 'Logged in successfully', severity: 'success' });
+        window.location.href = '/dashboard'
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setAlertState({ open: true, message: errorMessage, severity: 'error' });
     }
   }
 

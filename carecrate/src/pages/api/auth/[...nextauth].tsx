@@ -22,8 +22,9 @@ export default NextAuth({
     callbacks: {
         async jwt({ token, user }: { token: any; user: AdapterUser | User | WorkspaceUser | undefined }) {
             if (user && isWorkspaceUser(user)) {
+                console.log("JWT token: ", user)
                 token.id = user.id;
-                token.workspaceId = user.workspaceId as unknown as string;
+                token.workspaceId = user.workspaceId;
                 token.role = user.role;
             }
             console.log("Token in jwt callback: ", token)
@@ -32,6 +33,7 @@ export default NextAuth({
         async session({ session, user, token }) {
             if (token && session) {
                 const { id, workspaceId, name, role } = token;
+                console.log("ID, WID, NAME, ROLE: ", id, workspaceId, name, role);
                 if (id && workspaceId && role) {
                     const sessionUser: SessionUser = {
                         ...user,
@@ -41,7 +43,15 @@ export default NextAuth({
                         role: role as string
                     };
                     session.user = sessionUser;
+                    console.log("OK WE HAVE A REAL USER")
+                } else {
+                    console.log("OK WE DON'T HAVE A REAL USER: ", token);
                 }
+                console.log("OK WE HAVE A REAL SESSION");
+            } else {
+                console.log("FAILED TO CREATE ACTUAL USER SESSION");
+                console.log("Session: ", session)
+                console.log("Token: ", token)
             }
             console.log("Session in session callback: ", session);
             return session;
