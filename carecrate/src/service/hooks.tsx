@@ -109,7 +109,9 @@ export const useFirestore = () => {
     const docRef = doc(db, "reports", id);
     const docSnap = await getDoc(docRef);
 
-    return docSnap.data();
+    console.log(docSnap.data());
+
+    // return docSnap.data();
   };
 
   return {
