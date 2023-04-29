@@ -14,9 +14,11 @@ type Props = {
   editTitle: string;
   editSubtext: string;
   editElements: JSX.Element[];
+  onSubmit: () => void;
+  onCancel: () => void;
 };
 
-const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units, showPercent, editTitle, editSubtext, editElements }) => {
+const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units, showPercent, editTitle, editSubtext, editElements, onSubmit, onCancel }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const open = Boolean(anchorEl);
@@ -25,6 +27,10 @@ const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units, show
   };
   const handleClose = () => {
     setAnchorEl(null);
+  };
+  const handleCancel = () => {
+    onCancel();
+    setIsModalOpen(false)
   };
   const percentage: number = -1 * Math.round(((prev - value) / prev) * 100);
   return (
@@ -59,10 +65,8 @@ const DataCard: FunctionComponent<Props> = ({ subtitle, value, prev, units, show
           content={editSubtext}
           submitText="Submit"
           inputFields={editElements}
-          onSubmit={function (): void {
-            throw new Error("Function not implemented.");
-          }}
-          onCancel={() => setIsModalOpen(false)}
+          onSubmit={onSubmit}
+          onCancel={handleCancel}
         />
       )}
     </Card>
